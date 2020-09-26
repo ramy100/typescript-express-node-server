@@ -1,5 +1,17 @@
 import mongoose from "mongoose";
 
+interface IUser extends mongoose.Document {
+  _id: string;
+  username: string;
+  email: string;
+  password: string;
+  avatar?: string;
+  registered_at: string;
+  deactivated_at: string;
+  friends: string[];
+  friendRequests: string[];
+}
+
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
@@ -33,6 +45,6 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-const UserModel = mongoose.model("user", userSchema);
+const UserModel = mongoose.model<IUser>("user", userSchema);
 
 export default UserModel;
