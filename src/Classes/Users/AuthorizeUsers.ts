@@ -9,7 +9,7 @@ export default class AuthorizeUser {
       const token = jwt.sign(user, process.env.JWT_SECRET as string, {
         expiresIn: "10h",
       });
-      return { token, user };
+      return token;
     } catch (error) {
       throw new Error("Couldnt sign user token");
     }

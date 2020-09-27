@@ -14,7 +14,15 @@ const mongoDbConfig = {
   dbClusterName: process.env.DB_CLUSTER_NAME,
 };
 
-const server = new ApolloServer({ typeDefs, resolvers });
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  context: ({ req }) => {
+    const token = req.headers?.authorization?.split(" ")[1];
+
+    console.log(token);
+  },
+});
 
 const db = new Database(mongoDbConfig);
 db.ConnectToMongoDb();
