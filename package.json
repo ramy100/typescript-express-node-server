@@ -17,9 +17,11 @@
     "@types/joi": "^14.3.4",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/mongoose": "^5.7.36",
+    "apollo-server": "^2.18.1",
     "bcrypt": "^5.0.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "graphql": "^15.3.0",
     "joi": "^17.2.1",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.10.6"

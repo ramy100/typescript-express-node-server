@@ -1,10 +1,10 @@
 import jwt from "jsonwebtoken";
-import { UserType, UserWithoutPasswordType } from "../Types";
+import { UserType } from "../Types";
 import dotenv from "dotenv";
 dotenv.config();
 
 export default class AuthorizeUser {
-  static singUser(user: UserWithoutPasswordType) {
+  static singUser(user: UserType) {
     try {
       const token = jwt.sign(user, process.env.JWT_SECRET as string, {
         expiresIn: "10h",

@@ -1,20 +1,23 @@
 import Joi from "joi";
 import UserModel from "../../models/User";
-import { UserType, UserWithoutPasswordType } from "../Types";
+import { UserLoginType, UserRegisterType, UserType } from "../Types";
 import AuthorizeUser from "./AuthorizeUsers";
 import UserClass from "./User";
 import UserValidation from "./UserValidation";
 
-const validUserWithPassword: UserType = {
+const validUserWithPassword: UserRegisterType = {
   username: "ramy",
   email: "ramy@hotmail.com",
   password: "123456",
+  repeat_password: "123456",
 };
 
-const validUserWithoutPassword: UserWithoutPasswordType = {
+const validUserWithoutPassword: UserType = {
   username: "ramy",
   email: "ramy@hotmail.com",
   avatar: "avatar.jpg",
+  friends: [],
+  friendRequests: [],
 };
 
 describe("Register User Tests", () => {
@@ -25,18 +28,20 @@ describe("Register User Tests", () => {
   });
 
   it("should register a user ", async () => {
+    const { username, repeat_password, email } = validUserWithPassword;
     const user = new UserClass(validUserWithPassword);
     UserValidation.getUserIfExists = jest.fn().mockReturnValue(false);
     UserModel.prototype.save = jest.fn().mockReturnThis();
-    const res = await user.registerUser(validUserWithPassword.password);
-    expect(res).toMatchObject(validUserWithPassword);
+    const res = await user.registerUser(username, repeat_password);
+    expect(res).toMatchObject({ username, email });
   });
 
   it("should throws error if email exists ", async () => {
+    const { username, repeat_password } = validUserWithPassword;
     const user = new UserClass(validUserWithPassword);
     UserValidation.getUserIfExists = jest.fn().mockReturnValue(true);
     try {
-      await user.registerUser(validUserWithPassword.password);
+      await user.registerUser(username, repeat_password);
     } catch (error) {
       expect(error.message).toEqual("Email already exists");
     }
@@ -44,9 +49,10 @@ describe("Register User Tests", () => {
 
   it("should throws error if no email provided", async () => {
     validUserWithPassword.email = "";
+    const { username, repeat_password } = validUserWithPassword;
     const user = new UserClass(validUserWithPassword);
     try {
-      await user.registerUser(validUserWithPassword.password);
+      await user.registerUser(username, repeat_password);
     } catch (error) {
       expect(JSON.parse(error.message)[0].context.key).toEqual("email");
     }
@@ -54,18 +60,19 @@ describe("Register User Tests", () => {
 
   it("should throws error if no username provided", async () => {
     validUserWithPassword.username = "";
+    const { username, repeat_password } = validUserWithPassword;
     const user = new UserClass(validUserWithPassword);
     try {
-      await user.registerUser(validUserWithPassword.password);
+      await user.registerUser(username, repeat_password);
     } catch (error) {
       expect(JSON.parse(error.message)[0].context.key).toEqual("username");
     }
   });
 
   it("should throw four errors for required fields", async () => {
-    const user = new UserClass({} as UserType);
+    const user = new UserClass({} as UserLoginType);
     try {
-      await user.registerUser("");
+      await user.registerUser("", "");
     } catch (error) {
       const errors: Joi.ValidationErrorItem[] = JSON.parse(error.message);
       expect(errors).toHaveLength(4);
@@ -74,9 +81,10 @@ describe("Register User Tests", () => {
 
   it("should throws error if empty password provided", async () => {
     validUserWithPassword.password = "";
+    const { username, repeat_password } = validUserWithPassword;
     const user = new UserClass(validUserWithPassword);
     try {
-      await user.registerUser("");
+      await user.registerUser(username, repeat_password);
     } catch (error) {
       expect(JSON.parse(error.message)[0].message).toEqual(
         "password cannot be empty"
@@ -86,8 +94,9 @@ describe("Register User Tests", () => {
 
   it("should throws error if empty password confirmation", async () => {
     const user = new UserClass(validUserWithPassword);
+    const { username } = validUserWithPassword;
     try {
-      await user.registerUser("");
+      await user.registerUser(username, "");
     } catch (error) {
       expect(JSON.parse(error.message)[0].context.key).toEqual(
         "repeat_password"
@@ -96,9 +105,11 @@ describe("Register User Tests", () => {
   });
 
   it("should throws error if wrong password confirmation", async () => {
+    const { username } = validUserWithPassword;
+
     const user = new UserClass(validUserWithPassword);
     try {
-      await user.registerUser("wrong password");
+      await user.registerUser(username, "wrong password");
     } catch (error) {
       expect(JSON.parse(error.message)[0].context.key).toEqual(
         "repeat_password"
@@ -107,9 +118,10 @@ describe("Register User Tests", () => {
   });
 
   it("should throws error if null password confirmation", async () => {
+    const { username } = validUserWithPassword;
     const user = new UserClass(validUserWithPassword);
     try {
-      await user.registerUser((null as unknown) as string);
+      await user.registerUser(username, (null as unknown) as string);
     } catch (error) {
       expect(JSON.parse(error.message)[0].context.key).toEqual(
         "repeat_password"
@@ -120,15 +132,20 @@ describe("Register User Tests", () => {
 
 describe("Login Users", () => {
   it("should Login User", async () => {
-    const user = new UserClass(validUserWithPassword);
-    UserValidation.getUserIfExists = jest.fn().mockReturnValue(user.getUser());
+    const { email, password } = validUserWithPassword;
+    const user = new UserClass({ email, password });
+    UserValidation.getUserIfExists = jest
+      .fn()
+      .mockReturnValue(validUserWithoutPassword);
     UserValidation.comparePasswordWithHash = jest.fn().mockReturnValue(true);
     const res = await user.login();
     expect(res.token).toBeTruthy();
     expect(res.user).toMatchObject({
-      username: user.getUser().username,
       email: user.getUser().email,
-      avatar: user.getUser().avatar,
+      username: validUserWithoutPassword.username,
+      avatar: validUserWithoutPassword.avatar,
+      friends: validUserWithoutPassword.friends,
+      friendRequests: validUserWithoutPassword.friendRequests,
     });
     expect(res.user).not.toHaveProperty("password");
   });

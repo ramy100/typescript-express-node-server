@@ -1,10 +1,10 @@
 import Joi from "joi";
 import UserModel from "../../models/User";
-import { UserType } from "../Types";
+import { UserRegisterType } from "../Types";
 import bcrypt from "bcrypt";
 
 export default class UserValidation {
-  static validateRegisterUser(user: UserType, repeat_password: string) {
+  static validateRegisterUser(user: UserRegisterType) {
     const schema = Joi.object({
       username: Joi.string().alphanum().min(3).max(30).required(),
       password: Joi.string().required().min(3).max(30).alphanum().messages({
@@ -26,7 +26,7 @@ export default class UserValidation {
       avatar: Joi.string(),
     }).with("password", "repeat_password");
 
-    return schema.validate({ ...user, repeat_password }, { abortEarly: false });
+    return schema.validate(user, { abortEarly: false });
   }
 
   static async getUserIfExists(email: string) {

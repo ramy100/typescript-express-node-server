@@ -1,14 +1,22 @@
 import { Document } from "mongoose";
 import UserModel from "../../models/User";
-import { UserType } from "../Types";
+import { UserLoginType } from "../Types";
 import AuthorizeUser from "./AuthorizeUsers";
 import UserValidation from "./UserValidation";
 
 export default class User {
-  constructor(private user: UserType) {}
+  constructor(private user: UserLoginType) {}
 
   getUser() {
     return this.user;
+  }
+
+  static async getALl() {
+    try {
+      return await UserModel.find();
+    } catch (error) {
+      return new Error("Couldn't get all users");
+    }
   }
 
   static async getUserById(id: string) {
@@ -21,11 +29,18 @@ export default class User {
     }
   }
 
-  async registerUser(repeat_password: string) {
-    const result = UserValidation.validateRegisterUser(
-      this.user,
-      repeat_password
-    );
+  async registerUser(
+    username: string,
+    repeat_password: string,
+    avatar?: string
+  ) {
+    const registerInfo = {
+      ...this.user,
+      repeat_password,
+      username,
+      avatar,
+    };
+    const result = UserValidation.validateRegisterUser(registerInfo);
     if (result.error) {
       throw Error(JSON.stringify(result.error.details));
     }
@@ -36,8 +51,9 @@ export default class User {
     const hashedPass = await UserValidation.hashPassword(this.user.password);
     this.user.password = hashedPass;
     try {
-      const newUser = new UserModel(this.user);
-      return await newUser.save();
+      const newUser = new UserModel({ ...this.user, username, avatar });
+      await newUser.save();
+      return newUser;
     } catch (error) {
       console.log(error);
       throw new Error("Register failed");
@@ -51,7 +67,7 @@ export default class User {
       throw Error("User Doesn't exist!!");
     }
 
-    const { username, email, avatar, password } = user;
+    const { username, email, avatar, password, friends, friendRequests } = user;
 
     const isCorrectPassword = await UserValidation.comparePasswordWithHash(
       this.user.password,
@@ -62,7 +78,13 @@ export default class User {
       throw Error("Wrong credentials!!");
     }
 
-    return AuthorizeUser.singUser({ username, email, avatar });
+    return AuthorizeUser.singUser({
+      username,
+      email,
+      avatar,
+      friendRequests,
+      friends,
+    });
   }
 
   async saveUser(user: Document) {
