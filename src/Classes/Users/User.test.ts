@@ -2,34 +2,37 @@ import Joi from "joi";
 import UserModel from "../../models/User";
 import { UserLoginType, UserRegisterType, UserType } from "../Types";
 import AuthorizeUser from "./AuthorizeUsers";
+import User from "./User";
 import UserClass from "./User";
 import UserValidation from "./UserValidation";
 
-const validUserWithPassword: UserRegisterType = {
-  username: "ramy",
-  email: "ramy@hotmail.com",
-  password: "123456",
-  repeat_password: "123456",
-};
+const getRegisterUser = (
+  username: string,
+  without?: {
+    withouttUsername?: boolean;
+    withouttEmail?: boolean;
+    withouttPassword?: boolean;
+    withouttRepeat_password?: boolean;
+  }
+): UserRegisterType => ({
+  username: without?.withouttUsername ? "" : username,
+  email: without?.withouttEmail ? "" : `${username}@hotmail.com`,
+  password: without?.withouttPassword ? "" : "123456",
+  repeat_password: without?.withouttRepeat_password ? "" : "123456",
+});
 
-const validUserWithoutPassword: UserType = {
-  username: "ramy",
-  email: "ramy@hotmail.com",
-  avatar: "avatar.jpg",
-  friends: [],
-  friendRequests: [],
+const getUserModelDocument = (username: string) => {
+  return new UserModel({
+    username,
+    email: `${username}@hotmail.com`,
+    password: "123456",
+  });
 };
 
 describe("Register User Tests", () => {
-  beforeEach(() => {
-    validUserWithPassword.username = "ramy";
-    validUserWithPassword.email = "ramy@hotmail.com";
-    validUserWithPassword.password = "123456";
-  });
-
   it("should register a user ", async () => {
-    const { username, repeat_password, email } = validUserWithPassword;
-    const user = new UserClass(validUserWithPassword);
+    const { username, repeat_password, email } = getRegisterUser("ramy");
+    const user = new UserClass(getRegisterUser("ramy"));
     UserValidation.getUserIfExists = jest.fn().mockReturnValue(false);
     UserModel.prototype.save = jest.fn().mockReturnThis();
     const res = await user.registerUser(username, repeat_password);
@@ -37,8 +40,8 @@ describe("Register User Tests", () => {
   });
 
   it("should throws error if email exists ", async () => {
-    const { username, repeat_password } = validUserWithPassword;
-    const user = new UserClass(validUserWithPassword);
+    const { username, repeat_password } = getRegisterUser("ramy");
+    const user = new UserClass(getRegisterUser("ramy"));
     UserValidation.getUserIfExists = jest.fn().mockReturnValue(true);
     try {
       await user.registerUser(username, repeat_password);
@@ -48,9 +51,9 @@ describe("Register User Tests", () => {
   });
 
   it("should throws error if no email provided", async () => {
-    validUserWithPassword.email = "";
-    const { username, repeat_password } = validUserWithPassword;
-    const user = new UserClass(validUserWithPassword);
+    const registerUser = getRegisterUser("ramy", { withouttEmail: true });
+    const { username, repeat_password } = registerUser;
+    const user = new UserClass(registerUser);
     try {
       await user.registerUser(username, repeat_password);
     } catch (error) {
@@ -59,9 +62,9 @@ describe("Register User Tests", () => {
   });
 
   it("should throws error if no username provided", async () => {
-    validUserWithPassword.username = "";
-    const { username, repeat_password } = validUserWithPassword;
-    const user = new UserClass(validUserWithPassword);
+    const registerUser = getRegisterUser("ramy", { withouttUsername: true });
+    const { username, repeat_password } = registerUser;
+    const user = new UserClass(registerUser);
     try {
       await user.registerUser(username, repeat_password);
     } catch (error) {
@@ -80,9 +83,9 @@ describe("Register User Tests", () => {
   });
 
   it("should throws error if empty password provided", async () => {
-    validUserWithPassword.password = "";
-    const { username, repeat_password } = validUserWithPassword;
-    const user = new UserClass(validUserWithPassword);
+    const registerUser = getRegisterUser("ramy", { withouttPassword: true });
+    const { username, repeat_password } = registerUser;
+    const user = new UserClass(registerUser);
     try {
       await user.registerUser(username, repeat_password);
     } catch (error) {
@@ -93,8 +96,9 @@ describe("Register User Tests", () => {
   });
 
   it("should throws error if empty password confirmation", async () => {
-    const user = new UserClass(validUserWithPassword);
-    const { username } = validUserWithPassword;
+    const registerUser = getRegisterUser("ramy");
+    const user = new UserClass(registerUser);
+    const { username } = registerUser;
     try {
       await user.registerUser(username, "");
     } catch (error) {
@@ -105,9 +109,9 @@ describe("Register User Tests", () => {
   });
 
   it("should throws error if wrong password confirmation", async () => {
-    const { username } = validUserWithPassword;
-
-    const user = new UserClass(validUserWithPassword);
+    const registerUser = getRegisterUser("ramy");
+    const { username } = registerUser;
+    const user = new UserClass(registerUser);
     try {
       await user.registerUser(username, "wrong password");
     } catch (error) {
@@ -118,8 +122,9 @@ describe("Register User Tests", () => {
   });
 
   it("should throws error if null password confirmation", async () => {
-    const { username } = validUserWithPassword;
-    const user = new UserClass(validUserWithPassword);
+    const registerUser = getRegisterUser("ramy");
+    const { username } = registerUser;
+    const user = new UserClass(registerUser);
     try {
       await user.registerUser(username, (null as unknown) as string);
     } catch (error) {
@@ -132,18 +137,19 @@ describe("Register User Tests", () => {
 
 describe("Login Users", () => {
   it("should Login User", async () => {
-    const { email, password } = validUserWithPassword;
+    const userModelDoc = getUserModelDocument("ramy");
+    const registerUser = getRegisterUser("ramy");
+    const { email, password } = registerUser;
     const user = new UserClass({ email, password });
-    UserValidation.getUserIfExists = jest
-      .fn()
-      .mockReturnValue(validUserWithoutPassword);
+    UserValidation.getUserIfExists = jest.fn().mockReturnValue(userModelDoc);
     UserValidation.comparePasswordWithHash = jest.fn().mockReturnValue(true);
     const res = await user.login();
     expect(res).toBeTruthy();
   });
 
   it("should Not Login User If Not Found", async () => {
-    const user = new UserClass(validUserWithPassword);
+    const registerUser = getRegisterUser("ramy");
+    const user = new UserClass(registerUser);
     UserValidation.getUserIfExists = jest.fn().mockReturnValue(false);
     try {
       await user.login();
@@ -153,7 +159,8 @@ describe("Login Users", () => {
   });
 
   it("should Not Login User If Wrong Password", async () => {
-    const user = new UserClass(validUserWithPassword);
+    const registerUser = getRegisterUser("ramy");
+    const user = new UserClass(registerUser);
     UserValidation.getUserIfExists = jest.fn().mockReturnValue(user.getUser());
     UserValidation.comparePasswordWithHash = jest.fn().mockReturnValue(false);
     try {
@@ -165,8 +172,71 @@ describe("Login Users", () => {
 
   describe("UserValidation", () => {
     it("should return token with user ", () => {
-      const res = AuthorizeUser.singUser(validUserWithoutPassword);
+      const userModelDoc = getUserModelDocument("ramy").toObject();
+      const res = AuthorizeUser.singUser(userModelDoc);
       expect(res).toBeTruthy();
+    });
+  });
+  describe("Send friend requests", () => {
+    it("should not send friend request if user not found", async () => {
+      const userModelDoc = getUserModelDocument("ramy");
+      UserValidation.getUserIfExists = jest.fn().mockReturnValueOnce(null);
+      const user = new User(userModelDoc);
+      try {
+        await user.sendFriendRequest("ramy@hotmail.com");
+      } catch (error) {
+        expect(error.message).toEqual("User doesn't exist");
+      }
+    });
+
+    it("should not send friend request if friend not found", async () => {
+      const userModelDoc = getUserModelDocument("ramy");
+      UserValidation.getUserIfExists = jest
+        .fn()
+        .mockReturnValueOnce(userModelDoc)
+        .mockReturnValueOnce(null);
+      const user = new User(userModelDoc);
+      try {
+        await user.sendFriendRequest("ramy@hotmail.com");
+      } catch (error) {
+        expect(error.message).toEqual("User doesn't exist");
+      }
+    });
+
+    it("should not send another add request", async () => {
+      const userModelDoc = getUserModelDocument("ramy");
+      const friendModelDoc = getUserModelDocument("soso");
+      friendModelDoc.friendRequests.push(userModelDoc._id);
+      UserValidation.getUserIfExists = jest
+        .fn()
+        .mockReturnValueOnce(userModelDoc)
+        .mockReturnValueOnce(friendModelDoc);
+      const user = new User(userModelDoc);
+      try {
+        await user.sendFriendRequest(friendModelDoc.email);
+      } catch (error) {
+        expect(error.message).toEqual("already sent a friend request before");
+      }
+    });
+
+    it("should send friend request", async () => {
+      const userModelDoc = getUserModelDocument("ramy");
+      const friendModelDoc = getUserModelDocument("soso");
+      UserValidation.getUserIfExists = jest
+        .fn()
+        .mockReturnValueOnce(userModelDoc)
+        .mockResolvedValueOnce(friendModelDoc);
+      UserValidation.checkFriendRequests = jest.fn().mockReturnValue(false);
+      UserModel.prototype.save = jest.fn().mockReturnThis();
+      const user = new User(userModelDoc);
+      const res = await user.sendFriendRequest("ramy@hotmail.com");
+      expect(friendModelDoc.friendRequests.includes(userModelDoc._id)).toEqual(
+        true
+      );
+      expect(userModelDoc.friendRequests.includes(friendModelDoc._id)).toEqual(
+        false
+      );
+      expect(res).toEqual("sent friend request");
     });
   });
 });

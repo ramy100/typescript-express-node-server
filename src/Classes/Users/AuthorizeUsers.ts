@@ -11,6 +11,7 @@ export default class AuthorizeUser {
       });
       return token;
     } catch (error) {
+      return error.message;
       throw new Error("Couldnt sign user token");
     }
   }

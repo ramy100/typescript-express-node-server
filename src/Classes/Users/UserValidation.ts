@@ -2,6 +2,7 @@ import Joi from "joi";
 import UserModel from "../../models/User";
 import { UserRegisterType } from "../Types";
 import bcrypt from "bcrypt";
+import { IUser } from "../../models/User";
 
 export default class UserValidation {
   static validateRegisterUser(user: UserRegisterType) {
@@ -39,5 +40,11 @@ export default class UserValidation {
 
   static async hashPassword(password: string) {
     return await bcrypt.hash(password, 10);
+  }
+
+  static async checkFriendRequests(user: IUser, friend: IUser) {
+    const friendId = friend._id;
+    if (user.friendRequests.includes(friendId)) return true;
+    return false;
   }
 }

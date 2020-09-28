@@ -87,6 +87,27 @@ export default class User {
     });
   }
 
+  async sendFriendRequest(friendEmail: string) {
+    const user = await UserValidation.getUserIfExists(this.user.email);
+    const friend = await UserValidation.getUserIfExists(friendEmail);
+    if (!user || !friend) throw new Error("User doesn't exist");
+
+    const alreadyInFriendRequest = await UserValidation.checkFriendRequests(
+      friend,
+      user
+    );
+    if (alreadyInFriendRequest)
+      throw new Error("already sent a friend request before");
+
+    try {
+      friend.friendRequests.push(user._id);
+      await friend.save();
+      return "sent friend request";
+    } catch (error) {
+      return "Error sending friend request";
+    }
+  }
+
   async saveUser(user: Document) {
     return await user.save();
   }
