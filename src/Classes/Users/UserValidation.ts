@@ -42,9 +42,7 @@ export default class UserValidation {
     return await bcrypt.hash(password, 10);
   }
 
-  static async checkFriendRequests(user: IUser, friend: IUser) {
-    const friendId = friend._id;
-    if (user.friendRequests.includes(friendId)) return true;
-    return false;
+  static checkFriendRequests(userToCheck: IUser, friend: IUser) {
+    return userToCheck.friendRequests.includes(friend._id);
   }
 }

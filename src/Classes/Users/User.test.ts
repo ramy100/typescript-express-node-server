@@ -169,74 +169,163 @@ describe("Login Users", () => {
       expect(error.message).toEqual("Wrong credentials!!");
     }
   });
-
-  describe("UserValidation", () => {
-    it("should return token with user ", () => {
-      const userModelDoc = getUserModelDocument("ramy").toObject();
-      const res = AuthorizeUser.singUser(userModelDoc);
-      expect(res).toBeTruthy();
-    });
+});
+describe("UserValidation", () => {
+  it("should return token with user ", () => {
+    const userModelDoc = getUserModelDocument("ramy").toObject();
+    const res = AuthorizeUser.singUser(userModelDoc);
+    expect(res).toBeTruthy();
   });
-  describe("Send friend requests", () => {
-    it("should not send friend request if user not found", async () => {
-      const userModelDoc = getUserModelDocument("ramy");
-      UserValidation.getUserIfExists = jest.fn().mockReturnValueOnce(null);
-      const user = new User(userModelDoc);
-      try {
-        await user.sendFriendRequest("ramy@hotmail.com");
-      } catch (error) {
-        expect(error.message).toEqual("User doesn't exist");
-      }
-    });
+});
+describe("Send friend requests", () => {
+  it("should not send friend request if user not found", async () => {
+    const userModelDoc = getUserModelDocument("ramy");
+    UserValidation.getUserIfExists = jest.fn().mockReturnValueOnce(null);
+    const user = new User(userModelDoc);
+    try {
+      await user.sendFriendRequest("ramy@hotmail.com");
+    } catch (error) {
+      expect(error.message).toEqual("User doesn't exist");
+    }
+  });
 
-    it("should not send friend request if friend not found", async () => {
-      const userModelDoc = getUserModelDocument("ramy");
-      UserValidation.getUserIfExists = jest
-        .fn()
-        .mockReturnValueOnce(userModelDoc)
-        .mockReturnValueOnce(null);
-      const user = new User(userModelDoc);
-      try {
-        await user.sendFriendRequest("ramy@hotmail.com");
-      } catch (error) {
-        expect(error.message).toEqual("User doesn't exist");
-      }
-    });
+  it("should not send friend request if friend not found", async () => {
+    const userModelDoc = getUserModelDocument("ramy");
+    UserValidation.getUserIfExists = jest
+      .fn()
+      .mockReturnValueOnce(userModelDoc)
+      .mockReturnValueOnce(null);
+    const user = new User(userModelDoc);
+    try {
+      await user.sendFriendRequest("ramy@hotmail.com");
+    } catch (error) {
+      expect(error.message).toEqual("User doesn't exist");
+    }
+  });
 
-    it("should not send another add request", async () => {
-      const userModelDoc = getUserModelDocument("ramy");
-      const friendModelDoc = getUserModelDocument("soso");
-      friendModelDoc.friendRequests.push(userModelDoc._id);
-      UserValidation.getUserIfExists = jest
-        .fn()
-        .mockReturnValueOnce(userModelDoc)
-        .mockReturnValueOnce(friendModelDoc);
-      const user = new User(userModelDoc);
-      try {
-        await user.sendFriendRequest(friendModelDoc.email);
-      } catch (error) {
-        expect(error.message).toEqual("already sent a friend request before");
-      }
-    });
+  it("should not send another add request", async () => {
+    const userModelDoc = getUserModelDocument("ramy");
+    const friendModelDoc = getUserModelDocument("soso");
+    friendModelDoc.friendRequests.push(userModelDoc._id);
+    UserValidation.getUserIfExists = jest
+      .fn()
+      .mockReturnValueOnce(userModelDoc)
+      .mockReturnValueOnce(friendModelDoc);
+    const user = new User(userModelDoc);
+    try {
+      await user.sendFriendRequest(friendModelDoc.email);
+    } catch (error) {
+      expect(error.message).toEqual("already sent a friend request before");
+    }
+  });
 
-    it("should send friend request", async () => {
-      const userModelDoc = getUserModelDocument("ramy");
-      const friendModelDoc = getUserModelDocument("soso");
-      UserValidation.getUserIfExists = jest
-        .fn()
-        .mockReturnValueOnce(userModelDoc)
-        .mockResolvedValueOnce(friendModelDoc);
-      UserValidation.checkFriendRequests = jest.fn().mockReturnValue(false);
-      UserModel.prototype.save = jest.fn().mockReturnThis();
-      const user = new User(userModelDoc);
-      const res = await user.sendFriendRequest("ramy@hotmail.com");
-      expect(friendModelDoc.friendRequests.includes(userModelDoc._id)).toEqual(
-        true
+  it("should send friend request", async () => {
+    const userModelDoc = getUserModelDocument("ramy");
+    const friendModelDoc = getUserModelDocument("soso");
+    const mymock = jest.fn();
+    UserValidation.getUserIfExists = mymock
+      .mockReturnValueOnce(userModelDoc)
+      .mockReturnValueOnce(friendModelDoc);
+    UserModel.prototype.save = jest.fn().mockReturnThis();
+    const user = new User(userModelDoc);
+    const res = await user.sendFriendRequest("ramy@hotmail.com");
+    expect(res).toEqual("sent friend request");
+    expect(friendModelDoc.friendRequests.includes(userModelDoc._id)).toEqual(
+      true
+    );
+    expect(userModelDoc.friendRequests.includes(friendModelDoc._id)).toEqual(
+      false
+    );
+  });
+
+  it("should become friends if already had a pending friend request from that freind", async () => {
+    jest.clearAllMocks();
+    const userModelDoc = getUserModelDocument("ramy");
+    const friendModelDoc = getUserModelDocument("soso");
+    userModelDoc.friendRequests.push(friendModelDoc._id);
+    UserValidation.getUserIfExists = jest
+      .fn()
+      .mockReturnValueOnce(userModelDoc)
+      .mockReturnValueOnce(friendModelDoc);
+    const user = new User(userModelDoc);
+    const res = await user.sendFriendRequest(friendModelDoc.email);
+    expect(res).toEqual("You are friends now");
+    expect(userModelDoc.friends.includes(friendModelDoc._id)).toBeTruthy();
+    expect(friendModelDoc.friends.includes(userModelDoc._id)).toBeTruthy();
+    expect(
+      userModelDoc.friendRequests.includes(friendModelDoc._id)
+    ).toBeFalsy();
+    expect(
+      friendModelDoc.friendRequests.includes(userModelDoc._id)
+    ).toBeFalsy();
+    expect(friendModelDoc.friends.includes(friendModelDoc._id)).toBeFalsy();
+    expect(userModelDoc.friends.includes(userModelDoc._id)).toBeFalsy();
+  });
+});
+describe("Accept friend requests", () => {
+  it("should throw error if no user ", async () => {
+    const registerUser = getRegisterUser("ramy");
+    const friendModelDoc = getUserModelDocument("soso");
+    const user = new UserClass(registerUser);
+    UserModel.findOne = jest.fn().mockReturnValue(false);
+    UserModel.findById = jest.fn().mockReturnValue(true);
+    try {
+      await user.acceptFriendRequest(friendModelDoc._id);
+    } catch (error) {
+      expect(error.message).toEqual("User Not Found");
+    }
+  });
+
+  it("should throw error if no friend", async () => {
+    const registerUser = getRegisterUser("ramy");
+    const userModelDoc = getUserModelDocument("ramy");
+    const friendModelDoc = getUserModelDocument("soso");
+
+    const user = new UserClass(registerUser);
+    UserModel.findOne = jest.fn().mockReturnValue(userModelDoc);
+    UserModel.findById = jest.fn().mockReturnValue(null);
+    try {
+      await user.acceptFriendRequest(friendModelDoc._id);
+    } catch (error) {
+      expect(error.message).toEqual("User Not Found");
+    }
+  });
+
+  it("should throw error if no friend request", async () => {
+    const registerUser = getRegisterUser("ramy");
+    const userModelDoc = getUserModelDocument("ramy");
+    const friendModelDoc = getUserModelDocument("soso");
+    const user = new UserClass(registerUser);
+    UserModel.findOne = jest.fn().mockReturnValue(userModelDoc);
+    UserModel.findById = jest.fn().mockReturnValue(friendModelDoc);
+    try {
+      await user.acceptFriendRequest(friendModelDoc._id);
+    } catch (error) {
+      expect(error.message).toEqual(
+        "You dont have friend request from this user"
       );
-      expect(userModelDoc.friendRequests.includes(friendModelDoc._id)).toEqual(
-        false
-      );
-      expect(res).toEqual("sent friend request");
-    });
+    }
+  });
+
+  it("should accept friend request", async () => {
+    const registerUser = getRegisterUser("ramy");
+    const userModelDoc = getUserModelDocument("ramy");
+    const friendModelDoc = getUserModelDocument("soso");
+    userModelDoc.friendRequests.push(friendModelDoc._id);
+    const user = new UserClass(registerUser);
+    UserModel.findOne = jest.fn().mockReturnValue(userModelDoc);
+    UserModel.findById = jest.fn().mockReturnValue(friendModelDoc);
+    const res = await user.acceptFriendRequest(friendModelDoc._id);
+    expect(res).toEqual("You are now friends");
+    expect(userModelDoc.friends.includes(friendModelDoc._id)).toBeTruthy();
+    expect(friendModelDoc.friends.includes(userModelDoc._id)).toBeTruthy();
+    expect(
+      userModelDoc.friendRequests.includes(friendModelDoc._id)
+    ).toBeFalsy();
+    expect(
+      friendModelDoc.friendRequests.includes(userModelDoc._id)
+    ).toBeFalsy();
+    expect(friendModelDoc.friends.includes(friendModelDoc._id)).toBeFalsy();
+    expect(userModelDoc.friends.includes(userModelDoc._id)).toBeFalsy();
   });
 });
