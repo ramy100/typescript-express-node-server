@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { UserType } from "../Types";
 import dotenv from "dotenv";
+import { IUser } from "../../models/User";
 dotenv.config();
 
 export default class AuthorizeUser {
@@ -11,16 +12,16 @@ export default class AuthorizeUser {
       });
       return token;
     } catch (error) {
-      return error.message;
       throw new Error("Couldnt sign user token");
     }
   }
 
-  static verifyUser(token: string) {
+  static verifyUser(token: string | undefined) {
+    if (!token) return undefined;
     try {
-      return jwt.verify(token, process.env.JWT_SECRET as string);
+      return jwt.verify(token, process.env.JWT_SECRET as string) as IUser;
     } catch (error) {
-      throw new Error("Couldn't Verify Token!!");
+      return undefined;
     }
   }
 }

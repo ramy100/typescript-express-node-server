@@ -1,15 +1,11 @@
 import { Document } from "mongoose";
 import UserModel, { IUser } from "../../models/User";
-import { UserLoginType } from "../Types";
+import { UserLoginType, UserRegisterType } from "../Types";
 import AuthorizeUser from "./AuthorizeUsers";
 import UserValidation from "./UserValidation";
 
 export default class User {
-  constructor(private user: UserLoginType) {}
-
-  getUser() {
-    return this.user;
-  }
+  constructor() {}
 
   static async getALl() {
     try {
@@ -29,29 +25,24 @@ export default class User {
     }
   }
 
-  async registerUser(
-    username: string,
-    repeat_password: string,
-    avatar?: string
-  ) {
-    const registerInfo = {
-      ...this.user,
-      repeat_password,
-      username,
-      avatar,
-    };
-    const result = UserValidation.validateRegisterUser(registerInfo);
+  async registerUser(registerUser: UserRegisterType) {
+    const { email, password, username, avatar } = registerUser;
+    const result = UserValidation.validateRegisterUser(registerUser);
     if (result.error) {
       throw Error(JSON.stringify(result.error.details));
     }
-    const user_exists = await UserValidation.getUserIfExists(this.user.email);
+    const user_exists = await UserValidation.getUserIfExists(email);
     if (user_exists) {
       throw Error("Email already exists");
     }
-    const hashedPass = await UserValidation.hashPassword(this.user.password);
-    this.user.password = hashedPass;
+    const hashedPass = await UserValidation.hashPassword(password);
     try {
-      const newUser = new UserModel({ ...this.user, username, avatar });
+      const newUser = new UserModel({
+        email,
+        password: hashedPass,
+        username,
+        avatar,
+      });
       await newUser.save();
       return newUser;
     } catch (error) {
@@ -60,17 +51,25 @@ export default class User {
     }
   }
 
-  async login() {
-    const user = await UserValidation.getUserIfExists(this.user.email);
-
+  async login(loginUser: UserLoginType) {
+    const user = await UserValidation.getUserIfExists(loginUser.email);
     if (!user) {
       throw Error("User Doesn't exist!!");
     }
-
-    const { username, email, avatar, password, friends, friendRequests } = user;
+    const {
+      _id,
+      username,
+      email,
+      avatar,
+      password,
+      friends,
+      friendRequests,
+      registered_at,
+      deactivated_at,
+    } = user;
 
     const isCorrectPassword = await UserValidation.comparePasswordWithHash(
-      this.user.password,
+      loginUser.password,
       password
     );
 
@@ -79,16 +78,19 @@ export default class User {
     }
 
     return AuthorizeUser.singUser({
+      _id,
       username,
       email,
       avatar,
       friendRequests,
       friends,
+      registered_at,
+      deactivated_at,
     });
   }
 
-  async sendFriendRequest(friendEmail: string) {
-    const user = await UserValidation.getUserIfExists(this.user.email);
+  async sendFriendRequest(userEmail: string, friendEmail: string) {
+    const user = await UserValidation.getUserIfExists(userEmail);
     const friend = await UserValidation.getUserIfExists(friendEmail);
     if (!user || !friend) throw new Error("User doesn't exist");
 
@@ -117,8 +119,8 @@ export default class User {
     }
   }
 
-  async acceptFriendRequest(friendId: string) {
-    const user = await UserModel.findOne({ email: this.user.email });
+  async acceptFriendRequest(userId: string, friendId: string) {
+    const user = await UserModel.findById(userId);
     const friend = await UserModel.findById(friendId);
     if (!user || !friend) throw new Error("User Not Found");
 

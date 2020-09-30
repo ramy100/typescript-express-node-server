@@ -5,14 +5,19 @@ export type UserLoginType = {
 
 export type UserRegisterType = UserLoginType & {
   username: string;
+  password: string;
   repeat_password: string;
   avatar?: string;
 };
 
 export type UserType = {
-  username: string;
-  email: string;
+  _id?: string;
+  username?: string;
+  email?: string;
+  password?: string;
   avatar?: string;
-  friends: string[];
-  friendRequests: string[];
+  friends?: string[];
+  friendRequests?: string[];
+  registered_at?: Date;
+  deactivated_at?: Date;
 };

@@ -1,22 +1,20 @@
 import { UserLoginType, UserRegisterType } from "../../Classes/Types";
 import User from "../../Classes/Users/User";
 import UserModel from "../../models/User";
+import { UserType } from "../../Classes/Types";
 
 export const UserResolvers = {
   Query: {
     users: () => User.getALl(),
-    login: async (_: any, { email, password }: UserLoginType) => {
-      const user = new User({ email, password });
-      return await user.login();
+    login: async (_: any, LoginUser: UserLoginType) => {
+      const user = new User();
+      return await user.login(LoginUser);
     },
   },
   Mutation: {
-    register: async (
-      _: any,
-      { username, email, password, repeat_password }: UserRegisterType
-    ) => {
-      const user = new User({ email, password });
-      return await user.registerUser(username, repeat_password);
+    register: async (_: any, registerUSer: UserRegisterType) => {
+      const user = new User();
+      return await user.registerUser(registerUSer);
     },
     deleteAll: async () => {
       try {
@@ -26,6 +24,9 @@ export const UserResolvers = {
         console.log(error);
         return false;
       }
+    },
+    sendFriendRequest: async (_: any, req: any, context: any) => {
+      console.log(context);
     },
   },
 };

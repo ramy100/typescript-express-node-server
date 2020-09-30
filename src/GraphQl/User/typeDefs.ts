@@ -23,5 +23,6 @@ export const UserTypeDefs = gql`
       repeat_password: String
     ): User
     deleteAll: Boolean
+    sendFriendRequest(firendId: String): String
   }
 `;

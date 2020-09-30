@@ -6,8 +6,8 @@ export interface IUser extends mongoose.Document {
   email: string;
   password: string;
   avatar?: string;
-  registered_at: string;
-  deactivated_at: string;
+  registered_at: Date;
+  deactivated_at: Date;
   friends: string[];
   friendRequests: string[];
 }

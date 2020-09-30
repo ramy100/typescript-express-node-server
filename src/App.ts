@@ -5,8 +5,6 @@ import { ApolloServer } from "apollo-server";
 import { resolvers, typeDefs } from "./GraphQl/root";
 dotenv.config();
 
-// const app = express();
-
 const mongoDbConfig = {
   dbName: process.env.DB_NAME,
   dbUserName: process.env.DB_USER,
@@ -19,8 +17,7 @@ const server = new ApolloServer({
   resolvers,
   context: ({ req }) => {
     const token = req.headers?.authorization?.split(" ")[1];
-
-    console.log(token);
+    return { token };
   },
 });
 
