@@ -1,7 +1,8 @@
-const { gql } = require("apollo-server");
+import { gql } from "apollo-server";
 
 export const UserTypeDefs = gql`
   type User {
+    id: String
     username: String
     email: String
     avatar: String
@@ -23,6 +24,6 @@ export const UserTypeDefs = gql`
       repeat_password: String
     ): User
     deleteAll: Boolean
-    sendFriendRequest(firendId: String): String
+    sendFriendRequest(friendId: String): String
   }
 `;

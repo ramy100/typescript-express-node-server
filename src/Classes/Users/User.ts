@@ -9,19 +9,9 @@ export default class User {
 
   static async getALl() {
     try {
-      return await UserModel.find();
+      return await UserModel.find().populate(["friendRequests", "friends"]);
     } catch (error) {
       return new Error("Couldn't get all users");
-    }
-  }
-
-  static async getUserById(id: string) {
-    if (!id) throw new Error("Invalid User Id");
-    try {
-      const user = await UserModel.findById(id);
-      return user;
-    } catch (error) {
-      throw new Error("User Not Found");
     }
   }
 
@@ -31,7 +21,7 @@ export default class User {
     if (result.error) {
       throw Error(JSON.stringify(result.error.details));
     }
-    const user_exists = await UserValidation.getUserIfExists(email);
+    const user_exists = await UserValidation.getUserIfExists({ email });
     if (user_exists) {
       throw Error("Email already exists");
     }
@@ -52,7 +42,9 @@ export default class User {
   }
 
   async login(loginUser: UserLoginType) {
-    const user = await UserValidation.getUserIfExists(loginUser.email);
+    const user = await UserValidation.getUserIfExists({
+      email: loginUser.email,
+    });
     if (!user) {
       throw Error("User Doesn't exist!!");
     }
@@ -89,10 +81,26 @@ export default class User {
     });
   }
 
-  async sendFriendRequest(userEmail: string, friendEmail: string) {
-    const user = await UserValidation.getUserIfExists(userEmail);
-    const friend = await UserValidation.getUserIfExists(friendEmail);
+  async sendFriendRequest(token: string, friendId: string) {
+    const decoded = AuthorizeUser.verifyUser(token);
+    if (!decoded) {
+      throw new Error("Invalid Token");
+    }
+
+    if (decoded._id === friendId) {
+      throw new Error("cannot add your self");
+    }
+
+    const user = await UserValidation.getUserIfExists({ _id: decoded._id });
+    const friend = await UserValidation.getUserIfExists({ _id: friendId });
+    console.log(user);
     if (!user || !friend) throw new Error("User doesn't exist");
+
+    const alreadyFriends = UserValidation.checkIfFriends(user, friend);
+
+    if (alreadyFriends) {
+      throw new Error("Already Friends");
+    }
 
     const alreadyInFriendRequest = UserValidation.checkFriendRequests(
       friend,
@@ -107,7 +115,13 @@ export default class User {
     );
     if (hasPendingFriendRequest) {
       this.addFriend(user, friend);
-      return "You are friends now";
+      try {
+        await user.save();
+        await friend.save();
+        return "You are friends now";
+      } catch (error) {
+        return "Couldn't send friend request";
+      }
     }
 
     try {
@@ -137,9 +151,12 @@ export default class User {
   }
 
   private addFriend(user: IUser, friend: IUser) {
-    user.friendRequests = user.friendRequests.filter(
-      (requestId) => requestId !== friend._id
-    );
+    user.friendRequests = user.friendRequests.filter((requestId) => {
+      requestId != friend._id;
+    });
+    friend.friendRequests = friend.friendRequests.filter((requestId) => {
+      requestId != user._id;
+    });
     user.friends.push(friend._id);
     friend.friends.push(user._id);
   }

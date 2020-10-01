@@ -1,7 +1,6 @@
 import { UserLoginType, UserRegisterType } from "../../Classes/Types";
 import User from "../../Classes/Users/User";
 import UserModel from "../../models/User";
-import { UserType } from "../../Classes/Types";
 
 export const UserResolvers = {
   Query: {
@@ -18,15 +17,23 @@ export const UserResolvers = {
     },
     deleteAll: async () => {
       try {
-        await UserModel.remove({});
+        await UserModel.updateMany(
+          {},
+          { $set: { friendRequests: [], friends: [] } }
+        );
         return true;
       } catch (error) {
         console.log(error);
         return false;
       }
     },
-    sendFriendRequest: async (_: any, req: any, context: any) => {
-      console.log(context);
+    sendFriendRequest: async (
+      _: any,
+      { friendId }: { friendId: string },
+      { token }: { token: string }
+    ) => {
+      const user = new User();
+      return await user.sendFriendRequest(token, friendId);
     },
   },
 };

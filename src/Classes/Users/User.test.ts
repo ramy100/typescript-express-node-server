@@ -197,10 +197,11 @@ describe("UserValidation", () => {
 describe("Send friend requests", () => {
   it("should not send friend request if user not found", async () => {
     const userModelDoc = getUserModelDocument("soso");
+    AuthorizeUser.verifyUser = jest.fn().mockReturnValue(userModelDoc);
     UserValidation.getUserIfExists = jest.fn().mockReturnValueOnce(null);
     const user = new User();
     try {
-      await user.sendFriendRequest(userModelDoc.email, "ramy@hotmail.com");
+      await user.sendFriendRequest("mtToken", "ramy@hotmail.com");
     } catch (error) {
       expect(error.message).toEqual("User doesn't exist");
     }
@@ -208,13 +209,14 @@ describe("Send friend requests", () => {
 
   it("should not send friend request if friend not found", async () => {
     const userModelDoc = getUserModelDocument("soso");
+    AuthorizeUser.verifyUser = jest.fn().mockReturnValue(userModelDoc);
     UserValidation.getUserIfExists = jest
       .fn()
       .mockReturnValueOnce(userModelDoc)
       .mockReturnValueOnce(null);
     const user = new User();
     try {
-      await user.sendFriendRequest(userModelDoc.email, "ramy@hotmail.com");
+      await user.sendFriendRequest("myToken", "ramy@hotmail.com");
     } catch (error) {
       expect(error.message).toEqual("User doesn't exist");
     }
@@ -233,6 +235,19 @@ describe("Send friend requests", () => {
       await user.sendFriendRequest(userModelDoc.email, friendModelDoc.email);
     } catch (error) {
       expect(error.message).toEqual("already sent a friend request before");
+    }
+  });
+
+  it("should not send self friend request", async () => {
+    const userModelDoc = getUserModelDocument("ramy");
+    AuthorizeUser.verifyUser = jest.fn().mockReturnValue(userModelDoc);
+    UserValidation.getUserIfExists = jest.fn().mockReturnValue(userModelDoc);
+    const user = new User();
+    try {
+      const res = await user.sendFriendRequest("myToken", userModelDoc._id);
+      expect(res).toEqual(1);
+    } catch (error) {
+      expect(error.message).toEqual("cannot add your self");
     }
   });
 
@@ -263,15 +278,13 @@ describe("Send friend requests", () => {
     const userModelDoc = getUserModelDocument("ramy");
     const friendModelDoc = getUserModelDocument("soso");
     userModelDoc.friendRequests.push(friendModelDoc._id);
+    AuthorizeUser.verifyUser = jest.fn().mockReturnValue(userModelDoc);
     UserValidation.getUserIfExists = jest
       .fn()
       .mockReturnValueOnce(userModelDoc)
       .mockReturnValueOnce(friendModelDoc);
     const user = new User();
-    const res = await user.sendFriendRequest(
-      userModelDoc.email,
-      friendModelDoc.email
-    );
+    const res = await user.sendFriendRequest("myToken", friendModelDoc.email);
     expect(res).toEqual("You are friends now");
     expect(userModelDoc.friends.includes(friendModelDoc._id)).toBeTruthy();
     expect(friendModelDoc.friends.includes(userModelDoc._id)).toBeTruthy();

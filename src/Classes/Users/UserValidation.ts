@@ -30,8 +30,14 @@ export default class UserValidation {
     return schema.validate(user, { abortEarly: false });
   }
 
-  static async getUserIfExists(email: string) {
-    return await UserModel.findOne({ email });
+  static async getUserIfExists({
+    email,
+    _id,
+  }: {
+    email?: string;
+    _id?: string;
+  }) {
+    return await UserModel.findOne({ $or: [{ email }, { _id }] });
   }
 
   static async comparePasswordWithHash(password: string, hash: string) {
@@ -44,5 +50,9 @@ export default class UserValidation {
 
   static checkFriendRequests(userToCheck: IUser, friend: IUser) {
     return userToCheck.friendRequests.includes(friend._id);
+  }
+
+  static checkIfFriends(userToCheck: IUser, friend: IUser) {
+    return userToCheck.friends.includes(friend._id);
   }
 }
