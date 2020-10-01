@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import Database from "./Classes/Db";
 import { ApolloServer } from "apollo-server";
 import { resolvers, typeDefs } from "./GraphQl/root";
+import AuthorizeUser from "./Classes/Users/AuthorizeUsers";
+import { IUser } from "./models/User";
 dotenv.config();
 
 const mongoDbConfig = {
@@ -15,9 +17,15 @@ const mongoDbConfig = {
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: ({ req }) => {
-    const token = req.headers?.authorization?.split(" ")[1];
-    return { token };
+  context: ({ req, connection }) => {
+    let token: string | undefined;
+    if (connection) {
+      token = connection?.context?.Authorization?.split(" ")[1];
+    } else {
+      token = req?.headers?.authorization?.split(" ")[1];
+    }
+    const currentUser = AuthorizeUser.verifyUser(token);
+    return { currentUser };
   },
 });
 

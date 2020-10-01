@@ -3,7 +3,7 @@ import UserModel, { IUser } from "../../models/User";
 import { UserLoginType, UserRegisterType } from "../Types";
 import AuthorizeUser from "./AuthorizeUsers";
 import UserValidation from "./UserValidation";
-
+import { GqlResponse } from "../../Classes/GqlResponse/GqlResponse";
 export default class User {
   constructor() {}
 
@@ -81,25 +81,24 @@ export default class User {
     });
   }
 
-  async sendFriendRequest(token: string, friendId: string) {
-    const decoded = AuthorizeUser.verifyUser(token);
-    if (!decoded) {
-      throw new Error("Invalid Token");
+  async sendFriendRequest(currentUser: IUser, friendId: string) {
+    if (!currentUser) {
+      return new GqlResponse("Invalid Token", undefined, 403, false);
     }
 
-    if (decoded._id === friendId) {
-      throw new Error("cannot add your self");
+    if (currentUser._id === friendId) {
+      return new GqlResponse("cannot add your self", undefined, 403, false);
     }
 
-    const user = await UserValidation.getUserIfExists({ _id: decoded._id });
+    const user = await UserValidation.getUserIfExists({ _id: currentUser._id });
     const friend = await UserValidation.getUserIfExists({ _id: friendId });
-    console.log(user);
-    if (!user || !friend) throw new Error("User doesn't exist");
+    if (!user || !friend)
+      return new GqlResponse("User doesn't exist", undefined, 404, false);
 
     const alreadyFriends = UserValidation.checkIfFriends(user, friend);
 
     if (alreadyFriends) {
-      throw new Error("Already Friends");
+      return new GqlResponse("You are already friends!", undefined, 403, false);
     }
 
     const alreadyInFriendRequest = UserValidation.checkFriendRequests(
@@ -107,7 +106,12 @@ export default class User {
       user
     );
     if (alreadyInFriendRequest)
-      throw new Error("already sent a friend request before");
+      return new GqlResponse(
+        "already sent a friend request before",
+        undefined,
+        403,
+        false
+      );
 
     const hasPendingFriendRequest = UserValidation.checkFriendRequests(
       user,
@@ -118,18 +122,31 @@ export default class User {
       try {
         await user.save();
         await friend.save();
-        return "You are friends now";
+        return new GqlResponse("You are friends now", undefined);
       } catch (error) {
-        return "Couldn't send friend request";
+        return new GqlResponse(
+          "Couldn't send friend request",
+          undefined,
+          500,
+          false
+        );
       }
     }
 
     try {
       friend.friendRequests.push(user._id);
       await friend.save();
-      return "sent friend request";
+      return new GqlResponse("Friend Request Sent", {
+        from: user,
+        to: friend._id,
+      });
     } catch (error) {
-      return "Error sending friend request";
+      return new GqlResponse(
+        "Error sending friend request",
+        undefined,
+        500,
+        false
+      );
     }
   }
 

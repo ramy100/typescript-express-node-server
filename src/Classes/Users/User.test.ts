@@ -201,7 +201,7 @@ describe("Send friend requests", () => {
     UserValidation.getUserIfExists = jest.fn().mockReturnValueOnce(null);
     const user = new User();
     try {
-      await user.sendFriendRequest("mtToken", "ramy@hotmail.com");
+      await user.sendFriendRequest(userModelDoc, "ramy@hotmail.com");
     } catch (error) {
       expect(error.message).toEqual("User doesn't exist");
     }
@@ -216,7 +216,7 @@ describe("Send friend requests", () => {
       .mockReturnValueOnce(null);
     const user = new User();
     try {
-      await user.sendFriendRequest("myToken", "ramy@hotmail.com");
+      await user.sendFriendRequest(userModelDoc, "ramy@hotmail.com");
     } catch (error) {
       expect(error.message).toEqual("User doesn't exist");
     }
@@ -231,11 +231,11 @@ describe("Send friend requests", () => {
       .mockReturnValueOnce(userModelDoc)
       .mockReturnValueOnce(friendModelDoc);
     const user = new User();
-    try {
-      await user.sendFriendRequest(userModelDoc.email, friendModelDoc.email);
-    } catch (error) {
-      expect(error.message).toEqual("already sent a friend request before");
-    }
+    const res = await user.sendFriendRequest(
+      userModelDoc,
+      friendModelDoc.email
+    );
+    expect(res.message).toEqual("already sent a friend request before");
   });
 
   it("should not send self friend request", async () => {
@@ -243,12 +243,8 @@ describe("Send friend requests", () => {
     AuthorizeUser.verifyUser = jest.fn().mockReturnValue(userModelDoc);
     UserValidation.getUserIfExists = jest.fn().mockReturnValue(userModelDoc);
     const user = new User();
-    try {
-      const res = await user.sendFriendRequest("myToken", userModelDoc._id);
-      expect(res).toEqual(1);
-    } catch (error) {
-      expect(error.message).toEqual("cannot add your self");
-    }
+    const res = await user.sendFriendRequest(userModelDoc, userModelDoc._id);
+    expect(res.message).toEqual("cannot add your self");
   });
 
   it("should send friend request", async () => {
@@ -260,11 +256,8 @@ describe("Send friend requests", () => {
       .mockReturnValueOnce(friendModelDoc);
     UserModel.prototype.save = jest.fn().mockReturnThis();
     const user = new User();
-    const res = await user.sendFriendRequest(
-      userModelDoc.email,
-      "ramy@hotmail.com"
-    );
-    expect(res).toEqual("sent friend request");
+    const res = await user.sendFriendRequest(userModelDoc, "ramy@hotmail.com");
+    expect(res.message).toEqual("Friend Request Sent");
     expect(friendModelDoc.friendRequests.includes(userModelDoc._id)).toEqual(
       true
     );
@@ -284,8 +277,11 @@ describe("Send friend requests", () => {
       .mockReturnValueOnce(userModelDoc)
       .mockReturnValueOnce(friendModelDoc);
     const user = new User();
-    const res = await user.sendFriendRequest("myToken", friendModelDoc.email);
-    expect(res).toEqual("You are friends now");
+    const res = await user.sendFriendRequest(
+      userModelDoc,
+      friendModelDoc.email
+    );
+    expect(res.message).toEqual("You are friends now");
     expect(userModelDoc.friends.includes(friendModelDoc._id)).toBeTruthy();
     expect(friendModelDoc.friends.includes(userModelDoc._id)).toBeTruthy();
     expect(

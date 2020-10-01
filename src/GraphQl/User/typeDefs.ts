@@ -1,6 +1,18 @@
 import { gql } from "apollo-server";
 
 export const UserTypeDefs = gql`
+  type FriendRequest {
+    from: User
+    to: String
+  }
+
+  type FriendRequestResponse {
+    code: Int
+    success: Boolean
+    data: FriendRequest
+    message: String
+  }
+
   type User {
     id: String
     username: String
@@ -24,6 +36,6 @@ export const UserTypeDefs = gql`
       repeat_password: String
     ): User
     deleteAll: Boolean
-    sendFriendRequest(friendId: String): String
+    sendFriendRequest(friendId: String): FriendRequestResponse
   }
 `;

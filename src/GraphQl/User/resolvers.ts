@@ -1,6 +1,8 @@
+import { PubSub, withFilter } from "apollo-server";
 import { UserLoginType, UserRegisterType } from "../../Classes/Types";
 import User from "../../Classes/Users/User";
-import UserModel from "../../models/User";
+import UserModel, { IUser } from "../../models/User";
+const pubsub = new PubSub();
 
 export const UserResolvers = {
   Query: {
@@ -30,10 +32,30 @@ export const UserResolvers = {
     sendFriendRequest: async (
       _: any,
       { friendId }: { friendId: string },
-      { token }: { token: string }
+      { currentUser }: { currentUser: IUser }
     ) => {
       const user = new User();
-      return await user.sendFriendRequest(token, friendId);
+      const res = await user.sendFriendRequest(currentUser, friendId);
+      if (res.data) {
+        pubsub.publish("FRIEND_REQUEST_RECIEVED", {
+          friendRequestRecieved: res.data,
+        });
+      }
+      return res;
+    },
+  },
+  Subscription: {
+    friendRequestRecieved: {
+      subscribe: withFilter(
+        () => pubsub.asyncIterator(["FRIEND_REQUEST_RECIEVED"]),
+        (
+          payload: { friendRequestRecieved: { from: IUser; to: string } },
+          variables,
+          { currentUser }: { currentUser: IUser }
+        ) => {
+          return currentUser._id == payload.friendRequestRecieved.to;
+        }
+      ),
     },
   },
 };

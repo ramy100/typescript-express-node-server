@@ -5,6 +5,12 @@ const typeDef = gql`
   type Query
 `;
 
-export const typeDefs = [typeDef, UserTypeDefs];
+const Supscription = gql`
+  type Subscription {
+    friendRequestRecieved: FriendRequest
+  }
+`;
+
+export const typeDefs = [typeDef, Supscription, UserTypeDefs];
 
 export const resolvers = [UserResolvers];
