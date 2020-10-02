@@ -1,0 +1,25 @@
+.mainWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  background-color: rgb(104, 27, 27);
+}
+.login-form {
+  padding: 80px;
+  min-width: 90%;
+  background: rgba(0, 0, 0, 0.6);
+  color: wheat;
+}
+.submit-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 30px;
+}
+
+@media (min-width: 576px) {
+  .login-form {
+    min-width: 50%;
+  }
+}
