@@ -1,15 +1,12 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useState } from "react";
 import { Button, Form, Spinner } from "react-bootstrap";
 import FormTextField from "../FormTextField/FormTextField";
-import { Link, RouteComponentProps, useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import "./Login.scss";
 import { gql, useLazyQuery } from "@apollo/client";
+import { useAuthDispatch } from "../../context/auth";
 
-interface ChildComponentProps extends RouteComponentProps<any> {
-  /* other props for ChildComponent */
-}
-
-const Login: React.FunctionComponent<ChildComponentProps> = () => {
+const Login = () => {
   const LOGIN_USER = gql`
     query LoginUser($email: String, $password: String) {
       login(email: $email, password: $password) {
@@ -23,12 +20,15 @@ const Login: React.FunctionComponent<ChildComponentProps> = () => {
     }
   `;
   const history = useHistory();
+  const dispatch = useAuthDispatch();
   const [formErrors, setFormErrors] = useState({ email: "", password: "" });
-
   const [formData, setFormData] = useState({});
+
   const [LoginUserGql, { loading }] = useLazyQuery(LOGIN_USER, {
     onCompleted: ({ login: { user, token } }) => {
       localStorage.setItem("token", token);
+      console.log(user);
+      dispatch({ type: "LOGIN", payload: user });
       history.push("/");
     },
     onError: (gqlError) => {
@@ -55,6 +55,7 @@ const Login: React.FunctionComponent<ChildComponentProps> = () => {
   const inputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
   return (
     <Fragment>
       <div className='mainWrapper'>

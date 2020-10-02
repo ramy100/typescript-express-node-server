@@ -65,6 +65,7 @@ const Register = () => {
   const inputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
   return (
     <Fragment>
       <div className='mainWrapper'>
