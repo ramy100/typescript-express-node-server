@@ -1,12 +1,11 @@
 import React, { Fragment, useState } from "react";
-import { Button, Form } from "react-bootstrap";
-import FormTextField from "../FormTextField/FormTextField";
+import { Form, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import "./Login.scss";
+import FormTextField from "../FormTextField/FormTextField";
 
-const Login = () => {
+const Register = () => {
   const [formData, setFormData] = useState({});
-  const LogUser = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const registerUser = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     console.log(formData);
   };
@@ -17,13 +16,19 @@ const Login = () => {
     <Fragment>
       <div className='mainWrapper'>
         <div className='login-form'>
-          <h1 className='text-center'>Login</h1>
-          <Form onSubmit={LogUser}>
+          <h1 className='text-center'>Register</h1>
+          <Form onSubmit={registerUser}>
+            <FormTextField
+              label='User Name'
+              fieldName='username'
+              inputChange={inputChange}
+              placeholder='Enter User Name'
+            />
             <FormTextField
               label='Email Address'
               fieldName='email'
               inputChange={inputChange}
-              placeholder='Enter Email'
+              placeholder='Enter Email Adress'
             />
             <FormTextField
               label='Password'
@@ -32,11 +37,18 @@ const Login = () => {
               placeholder='Password'
               type='password'
             />
+            <FormTextField
+              label='Password Confrimation'
+              fieldName='repeat_password'
+              inputChange={inputChange}
+              placeholder='Password confrimation'
+              type='password'
+            />
             <div className='submit-button'>
               <Button size='lg' variant='success' type='submit'>
-                Login
+                Register
               </Button>
-              <Link to='/register'>Dont have an account ? create one</Link>
+              <Link to='/login'>Already have an account ? Log in</Link>
             </div>
           </Form>
         </div>
@@ -45,4 +57,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;
