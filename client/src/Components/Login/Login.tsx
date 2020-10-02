@@ -1,15 +1,57 @@
-import React, { Fragment, useState } from "react";
-import { Button, Form } from "react-bootstrap";
+import React, { Fragment, useEffect, useState } from "react";
+import { Button, Form, Spinner } from "react-bootstrap";
 import FormTextField from "../FormTextField/FormTextField";
-import { Link } from "react-router-dom";
+import { Link, RouteComponentProps, useHistory } from "react-router-dom";
 import "./Login.scss";
+import { gql, useLazyQuery } from "@apollo/client";
 
-const Login = () => {
+interface ChildComponentProps extends RouteComponentProps<any> {
+  /* other props for ChildComponent */
+}
+
+const Login: React.FunctionComponent<ChildComponentProps> = () => {
+  const LOGIN_USER = gql`
+    query LoginUser($email: String, $password: String) {
+      login(email: $email, password: $password) {
+        token
+        user {
+          username
+          email
+          avatar
+        }
+      }
+    }
+  `;
+  const history = useHistory();
+  const [formErrors, setFormErrors] = useState({ email: "", password: "" });
+
   const [formData, setFormData] = useState({});
-  const LogUser = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [LoginUserGql, { loading }] = useLazyQuery(LOGIN_USER, {
+    onCompleted: ({ login: { user, token } }) => {
+      localStorage.setItem("token", token);
+      history.push("/");
+    },
+    onError: (gqlError) => {
+      try {
+        const JoiErrors = JSON.parse(gqlError.message);
+        const JoiErrorsObj: any = {};
+        JoiErrors.forEach(
+          (error: { context: { label: string }; message: string }) => {
+            JoiErrorsObj[error.context.label] = error.message;
+          }
+        );
+        setFormErrors(JoiErrorsObj);
+      } catch (err) {
+        setFormErrors({ email: "", password: "" });
+        console.log(gqlError.message);
+      }
+    },
+  });
+
+  function LoginUser(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
-    console.log(formData);
-  };
+    LoginUserGql({ variables: formData });
+  }
   const inputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -18,12 +60,13 @@ const Login = () => {
       <div className='mainWrapper'>
         <div className='login-form'>
           <h1 className='text-center'>Login</h1>
-          <Form onSubmit={LogUser}>
+          <Form onSubmit={LoginUser}>
             <FormTextField
               label='Email Address'
               fieldName='email'
               inputChange={inputChange}
               placeholder='Enter Email'
+              error={formErrors.email}
             />
             <FormTextField
               label='Password'
@@ -31,10 +74,11 @@ const Login = () => {
               inputChange={inputChange}
               placeholder='Password'
               type='password'
+              error={formErrors.password}
             />
             <div className='submit-button'>
-              <Button size='lg' variant='success' type='submit'>
-                Login
+              <Button disabled={loading} variant='success' type='submit'>
+                {loading ? <Spinner animation='border' /> : "Login"}
               </Button>
               <Link to='/register'>Dont have an account ? create one</Link>
             </div>

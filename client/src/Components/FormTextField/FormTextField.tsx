@@ -7,12 +7,14 @@ const FormTextField = ({
   label,
   placeholder,
   type,
+  error,
 }: {
   inputChange: any;
   fieldName: string;
   label: string;
   placeholder: string;
   type?: string;
+  error?: string;
 }) => {
   return (
     <Form.Group controlId={`formGroup${fieldName}`}>
@@ -22,7 +24,9 @@ const FormTextField = ({
         name={fieldName}
         onChange={inputChange}
         type={type ? type : undefined}
+        isInvalid={error ? true : false}
       />
+      <Form.Control.Feedback type='invalid'>{error}</Form.Control.Feedback>
     </Form.Group>
   );
 };

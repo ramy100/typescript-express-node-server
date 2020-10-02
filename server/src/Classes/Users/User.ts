@@ -34,7 +34,24 @@ export default class User {
         avatar,
       });
       await newUser.save();
-      return newUser;
+      const {
+        _id,
+        friends,
+        friendRequests,
+        registered_at,
+        deactivated_at,
+      } = newUser;
+      const token = AuthorizeUser.singUser({
+        _id,
+        username,
+        email,
+        avatar,
+        friendRequests,
+        friends,
+        registered_at,
+        deactivated_at,
+      });
+      return { token, newUser };
     } catch (error) {
       console.log(error);
       throw new Error("Register failed");
@@ -42,12 +59,17 @@ export default class User {
   }
 
   async login(loginUser: UserLoginType) {
+    const result = UserValidation.validateLoginUser(loginUser);
+    if (result.error) {
+      throw Error(JSON.stringify(result.error.details));
+    }
+
     const user = await UserValidation.getUserIfExists({
       email: loginUser.email,
     });
-    if (!user) {
-      throw Error("User Doesn't exist!!");
-    }
+    if (!user)
+      throw new Error("Email is not registered create new account ?!!");
+
     const {
       _id,
       username,
@@ -69,7 +91,7 @@ export default class User {
       throw Error("Wrong credentials!!");
     }
 
-    return AuthorizeUser.singUser({
+    const token = AuthorizeUser.singUser({
       _id,
       username,
       email,
@@ -79,6 +101,7 @@ export default class User {
       registered_at,
       deactivated_at,
     });
+    return { token, user };
   }
 
   async sendFriendRequest(currentUser: IUser, friendId: string) {

@@ -24,9 +24,14 @@ export const UserTypeDefs = gql`
     deactivated_at: String
   }
 
+  type LoginToken {
+    token: String
+    user: User
+  }
+
   extend type Query {
     users: [User]
-    login(email: String, password: String): String
+    login(email: String, password: String): LoginToken
   }
   type Mutation {
     register(
@@ -34,7 +39,7 @@ export const UserTypeDefs = gql`
       email: String
       password: String
       repeat_password: String
-    ): User
+    ): LoginToken
     deleteAll: Boolean
     sendFriendRequest(friendId: String): FriendRequestResponse
   }
