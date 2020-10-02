@@ -2,10 +2,12 @@ import { useQuery, gql, useLazyQuery, useMutation } from "@apollo/client";
 import React, { Fragment, useEffect, useState } from "react";
 import { Form, Button } from "react-bootstrap";
 import { Link, useHistory } from "react-router-dom";
+import { useAuthDispatch } from "../../context/auth";
 import FormTextField from "../FormTextField/FormTextField";
 import "./Register.scss";
 
 const Register = () => {
+  const dispatch = useAuthDispatch();
   const REGISTER_USER = gql`
     mutation registerUser(
       $email: String
@@ -20,6 +22,11 @@ const Register = () => {
         username: $username
       ) {
         token
+        user {
+          username
+          email
+          avatar
+        }
       }
     }
   `;
@@ -35,6 +42,7 @@ const Register = () => {
   const [RegisterUserGql, { loading }] = useMutation(REGISTER_USER, {
     onCompleted: ({ register: { token, user } }: any) => {
       localStorage.setItem("token", token);
+      dispatch({ type: "LOGIN", payload: user });
       history.push("/");
     },
     onError: (gqlError) => {

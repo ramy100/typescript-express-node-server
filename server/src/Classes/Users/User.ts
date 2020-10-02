@@ -1,13 +1,14 @@
 import { Document } from "mongoose";
 import UserModel, { IUser } from "../../models/User";
-import { UserLoginType, UserRegisterType } from "../Types";
+import { UserLoginType, UserRegisterType, UserType } from "../Types";
 import AuthorizeUser from "./AuthorizeUsers";
 import UserValidation from "./UserValidation";
 import { GqlResponse } from "../../Classes/GqlResponse/GqlResponse";
 export default class User {
   constructor() {}
 
-  static async getALl() {
+  static async getAll(user: any) {
+    if (!user) throw new Error("Unauthorized action");
     try {
       return await UserModel.find().populate(["friendRequests", "friends"]);
     } catch (error) {
@@ -27,20 +28,20 @@ export default class User {
     }
     const hashedPass = await UserValidation.hashPassword(password);
     try {
-      const newUser = new UserModel({
+      const user = new UserModel({
         email,
         password: hashedPass,
         username,
         avatar,
       });
-      await newUser.save();
+      await user.save();
       const {
         _id,
         friends,
         friendRequests,
         registered_at,
         deactivated_at,
-      } = newUser;
+      } = user;
       const token = AuthorizeUser.singUser({
         _id,
         username,
@@ -51,7 +52,7 @@ export default class User {
         registered_at,
         deactivated_at,
       });
-      return { token, newUser };
+      return { token, user };
     } catch (error) {
       console.log(error);
       throw new Error("Register failed");

@@ -1,12 +1,13 @@
 import { PubSub, withFilter } from "apollo-server";
-import { UserLoginType, UserRegisterType } from "../../Classes/Types";
+import { UserLoginType, UserRegisterType, UserType } from "../../Classes/Types";
 import User from "../../Classes/Users/User";
 import UserModel, { IUser } from "../../models/User";
 const pubsub = new PubSub();
 
 export const UserResolvers = {
   Query: {
-    users: () => User.getALl(),
+    users: (_: any, __: any, { currentUser }: { currentUser: UserType }) =>
+      User.getAll(currentUser),
     login: async (_: any, LoginUser: UserLoginType) => {
       const user = new User();
       return await user.login(LoginUser);

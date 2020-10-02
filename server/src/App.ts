@@ -4,7 +4,6 @@ import Database from "./Classes/Db";
 import { ApolloServer } from "apollo-server";
 import { resolvers, typeDefs } from "./GraphQl/root";
 import AuthorizeUser from "./Classes/Users/AuthorizeUsers";
-import { IUser } from "./models/User";
 dotenv.config();
 
 const mongoDbConfig = {
