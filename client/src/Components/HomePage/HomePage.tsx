@@ -1,30 +1,8 @@
-import { gql, useQuery, useSubscription } from "@apollo/client";
+import { useQuery, useSubscription } from "@apollo/client";
 import React, { useEffect } from "react";
 import { useAuthState } from "../../context/auth";
-
-const GET_USERS = gql`
-  query GetUsers {
-    users {
-      username
-      id
-      avatar
-      email
-    }
-  }
-`;
-
-const FRIEND_REQUEST_SUPSRIBTION = gql`
-  subscription OnFriendRequestRecieved {
-    friendRequestRecieved {
-      to
-      from {
-        username
-        email
-        avatar
-      }
-    }
-  }
-`;
+import { GET_USERS } from "../../GraphQl/Queries";
+import { FRIEND_REQUEST_SUPSRIBTION } from "../../GraphQl/Subscriptions";
 
 const HomePage = () => {
   const { user } = useAuthState();

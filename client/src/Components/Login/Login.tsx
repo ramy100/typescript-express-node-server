@@ -5,31 +5,19 @@ import { Link, useHistory } from "react-router-dom";
 import "./Login.scss";
 import { gql, useLazyQuery } from "@apollo/client";
 import { useAuthDispatch } from "../../context/auth";
+import { LOGIN_USER } from "../../GraphQl/Queries";
+import { User } from "../../Classes/User";
 
 const Login = () => {
-  const LOGIN_USER = gql`
-    query LoginUser($email: String, $password: String) {
-      login(email: $email, password: $password) {
-        token
-        user {
-          username
-          email
-          avatar
-        }
-      }
-    }
-  `;
+  const InitialFormErrors: { email?: string; password?: string } = {};
   const history = useHistory();
   const dispatch = useAuthDispatch();
-  const [formErrors, setFormErrors] = useState({ email: "", password: "" });
+  const [formErrors, setFormErrors] = useState(InitialFormErrors);
   const [formData, setFormData] = useState({});
 
   const [LoginUserGql, { loading }] = useLazyQuery(LOGIN_USER, {
     onCompleted: ({ login: { user, token } }) => {
-      localStorage.setItem("token", token);
-      console.log(user);
-      dispatch({ type: "LOGIN", payload: user });
-      history.push("/");
+      User.loginUser(token, dispatch, user, history);
     },
     onError: (gqlError) => {
       try {
@@ -42,7 +30,7 @@ const Login = () => {
         );
         setFormErrors(JoiErrorsObj);
       } catch (err) {
-        setFormErrors({ email: "", password: "" });
+        setFormErrors(InitialFormErrors);
         console.log(gqlError.message);
       }
     },
@@ -67,7 +55,7 @@ const Login = () => {
               fieldName='email'
               inputChange={inputChange}
               placeholder='Enter Email'
-              error={formErrors.email}
+              error={formErrors?.email}
             />
             <FormTextField
               label='Password'
@@ -75,7 +63,7 @@ const Login = () => {
               inputChange={inputChange}
               placeholder='Password'
               type='password'
-              error={formErrors.password}
+              error={formErrors?.password}
             />
             <div className='submit-button'>
               <Button disabled={loading} variant='success' type='submit'>

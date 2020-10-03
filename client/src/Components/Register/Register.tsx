@@ -1,49 +1,29 @@
-import { useQuery, gql, useLazyQuery, useMutation } from "@apollo/client";
-import React, { Fragment, useEffect, useState } from "react";
+import { useMutation } from "@apollo/client";
+import React, { Fragment, useState } from "react";
 import { Form, Button } from "react-bootstrap";
 import { Link, useHistory } from "react-router-dom";
+import { User } from "../../Classes/User";
 import { useAuthDispatch } from "../../context/auth";
+import { REGISTER_USER } from "../../GraphQl/Mutations";
 import FormTextField from "../FormTextField/FormTextField";
 import "./Register.scss";
 
 const Register = () => {
+  const InitialFormErrors: {
+    email?: string;
+    password?: string;
+    repeat_password?: string;
+    username?: string;
+  } = {};
   const dispatch = useAuthDispatch();
-  const REGISTER_USER = gql`
-    mutation registerUser(
-      $email: String
-      $password: String
-      $repeat_password: String
-      $username: String
-    ) {
-      register(
-        email: $email
-        password: $password
-        repeat_password: $repeat_password
-        username: $username
-      ) {
-        token
-        user {
-          username
-          email
-          avatar
-        }
-      }
-    }
-  `;
   const history = useHistory();
-  const [formErrors, setFormErrors] = useState({
-    email: "",
-    password: "",
-    repeat_password: "",
-    username: "",
-  });
+
+  const [formErrors, setFormErrors] = useState(InitialFormErrors);
   const [formData, setFormData] = useState({});
 
   const [RegisterUserGql, { loading }] = useMutation(REGISTER_USER, {
     onCompleted: ({ register: { token, user } }: any) => {
-      localStorage.setItem("token", token);
-      dispatch({ type: "LOGIN", payload: user });
-      history.push("/");
+      User.loginUser(token, dispatch, user, history);
     },
     onError: (gqlError) => {
       try {
@@ -56,20 +36,17 @@ const Register = () => {
         );
         setFormErrors(JoiErrorsObj);
       } catch (err) {
-        setFormErrors({
-          email: "",
-          password: "",
-          repeat_password: "",
-          username: "",
-        });
+        setFormErrors(InitialFormErrors);
         console.log(gqlError.message);
       }
     },
   });
+
   const registerUser = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     RegisterUserGql({ variables: formData });
   };
+
   const inputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -85,14 +62,14 @@ const Register = () => {
               fieldName='username'
               inputChange={inputChange}
               placeholder='Enter User Name'
-              error={formErrors.username}
+              error={formErrors?.username}
             />
             <FormTextField
               label='Email Address'
               fieldName='email'
               inputChange={inputChange}
               placeholder='Enter Email Adress'
-              error={formErrors.email}
+              error={formErrors?.email}
             />
             <FormTextField
               label='Password'
@@ -100,7 +77,7 @@ const Register = () => {
               inputChange={inputChange}
               placeholder='Password'
               type='password'
-              error={formErrors.password}
+              error={formErrors?.password}
             />
             <FormTextField
               label='Password Confrimation'
@@ -108,7 +85,7 @@ const Register = () => {
               inputChange={inputChange}
               placeholder='Password confrimation'
               type='password'
-              error={formErrors.repeat_password}
+              error={formErrors?.repeat_password}
             />
             <div className='submit-button'>
               <Button variant='success' type='submit'>
