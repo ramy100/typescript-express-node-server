@@ -5,9 +5,12 @@ export const LOGIN_USER = gql`
     login(email: $email, password: $password) {
       token
       user {
+        id
         username
         email
-        avatar
+        friendRequests {
+          email
+        }
       }
     }
   }
@@ -20,6 +23,29 @@ export const GET_USERS = gql`
       id
       avatar
       email
+    }
+  }
+`;
+
+export const GET_USER_FROM_TOKEN = gql`
+  query GetUserFromToken {
+    user {
+      id
+      username
+      email
+      avatar
+      friendRequests {
+        id
+        email
+        username
+        avatar
+      }
+      friends {
+        id
+        email
+        username
+        avatar
+      }
     }
   }
 `;

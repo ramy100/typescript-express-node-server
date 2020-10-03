@@ -31,6 +31,7 @@ export const UserTypeDefs = gql`
 
   extend type Query {
     users: [User]
+    user: User
     login(email: String, password: String): LoginToken
   }
   type Mutation {

@@ -1,6 +1,7 @@
 import { PubSub, withFilter } from "apollo-server";
 import { UserLoginType, UserRegisterType, UserType } from "../../Classes/Types";
 import User from "../../Classes/Users/User";
+import UserValidation from "../../Classes/Users/UserValidation";
 import UserModel, { IUser } from "../../models/User";
 const pubsub = new PubSub();
 
@@ -11,6 +12,15 @@ export const UserResolvers = {
     login: async (_: any, LoginUser: UserLoginType) => {
       const user = new User();
       return await user.login(LoginUser);
+    },
+    user: async (
+      _: any,
+      __: any,
+      { currentUser }: { currentUser: UserType }
+    ) => {
+      if (currentUser)
+        return await UserValidation.getUserIfExists({ _id: currentUser._id });
+      return null;
     },
   },
   Mutation: {

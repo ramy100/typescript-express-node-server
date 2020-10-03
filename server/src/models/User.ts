@@ -8,8 +8,8 @@ export interface IUser extends mongoose.Document {
   avatar?: string;
   registered_at: Date;
   deactivated_at: Date;
-  friends: string[];
-  friendRequests: string[];
+  friends: string[] | any[];
+  friendRequests: string[] | any[];
 }
 
 const userSchema = new mongoose.Schema({

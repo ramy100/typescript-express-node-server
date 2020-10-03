@@ -14,6 +14,15 @@ const authReducer = (state, action) => {
     case "LOGOUT":
       return { ...state, user: null };
 
+    case "ADD_FRIEND_REQUESTS":
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          friendRequests: [...state.user.friendRequests, action.payload],
+        },
+      };
+
     default:
       throw new Error(`Unknown Action Type ${action.type}`);
   }
