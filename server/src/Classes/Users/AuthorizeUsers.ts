@@ -1,17 +1,17 @@
 import jwt from "jsonwebtoken";
-import { UserType } from "../Types";
 import dotenv from "dotenv";
-import { IUser } from "../../models/User";
+import { redisClient } from "../RedisClient";
 dotenv.config();
 
 export default class AuthorizeUser {
-  static singUser(user: UserType) {
+  static singUser(userId: string) {
     try {
-      const token = jwt.sign(user, process.env.JWT_SECRET as string, {
-        expiresIn: "10h",
-      });
+      const token = jwt.sign({ userId }, process.env.JWT_SECRET as string);
+      redisClient.set(token, "1");
+
       return token;
     } catch (error) {
+      console.log(error.message);
       throw new Error("Couldnt sign user token");
     }
   }
@@ -19,7 +19,7 @@ export default class AuthorizeUser {
   static verifyUser(token: string | undefined) {
     if (!token) return undefined;
     try {
-      return jwt.verify(token, process.env.JWT_SECRET as string) as IUser;
+      return jwt.verify(token, process.env.JWT_SECRET as string) as any;
     } catch (error) {
       return undefined;
     }

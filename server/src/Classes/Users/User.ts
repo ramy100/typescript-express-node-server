@@ -1,9 +1,9 @@
 import { Document } from "mongoose";
+import { GqlResponse } from "../../Classes/GqlResponse/GqlResponse";
 import UserModel, { IUser } from "../../models/User";
-import { UserLoginType, UserRegisterType, UserType } from "../Types";
+import { UserLoginType, UserRegisterType } from "../Types";
 import AuthorizeUser from "./AuthorizeUsers";
 import UserValidation from "./UserValidation";
-import { GqlResponse } from "../../Classes/GqlResponse/GqlResponse";
 export default class User {
   constructor() {}
 
@@ -35,23 +35,8 @@ export default class User {
         avatar,
       });
       await user.save();
-      const {
-        _id,
-        friends,
-        friendRequests,
-        registered_at,
-        deactivated_at,
-      } = user;
-      const token = AuthorizeUser.singUser({
-        _id,
-        username,
-        email,
-        avatar,
-        friendRequests,
-        friends,
-        registered_at,
-        deactivated_at,
-      });
+      const { _id } = user;
+      const token = AuthorizeUser.singUser(_id);
       return { token, user };
     } catch (error) {
       console.log(error);
@@ -71,17 +56,7 @@ export default class User {
     if (!user)
       throw new Error("Email is not registered create new account ?!!");
 
-    const {
-      _id,
-      username,
-      email,
-      avatar,
-      password,
-      friends,
-      friendRequests,
-      registered_at,
-      deactivated_at,
-    } = user;
+    const { _id, password } = user;
 
     const isCorrectPassword = await UserValidation.comparePasswordWithHash(
       loginUser.password,
@@ -92,29 +67,20 @@ export default class User {
       throw Error("Wrong credentials!!");
     }
 
-    const token = AuthorizeUser.singUser({
-      _id,
-      username,
-      email,
-      avatar,
-      friendRequests,
-      friends,
-      registered_at,
-      deactivated_at,
-    });
+    const token = AuthorizeUser.singUser(_id);
     return { token, user };
   }
 
-  async sendFriendRequest(currentUser: IUser, friendId: string) {
-    if (!currentUser) {
+  async sendFriendRequest(userId: string, friendId: string) {
+    if (!userId) {
       return new GqlResponse("Invalid Token", undefined, 403, false);
     }
 
-    if (currentUser._id === friendId) {
+    if (userId === friendId) {
       return new GqlResponse("cannot add your self", undefined, 403, false);
     }
 
-    const user = await UserValidation.getUserIfExists({ _id: currentUser._id });
+    const user = await UserValidation.getUserIfExists({ _id: userId });
     const friend = await UserValidation.getUserIfExists({ _id: friendId });
     if (!user || !friend)
       return new GqlResponse("User doesn't exist", undefined, 404, false);
@@ -129,6 +95,7 @@ export default class User {
       friend,
       user
     );
+
     if (alreadyInFriendRequest)
       return new GqlResponse(
         "already sent a friend request before",

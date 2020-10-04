@@ -1,4 +1,5 @@
 import { PubSub, withFilter } from "apollo-server";
+import { redisClient } from "../../Classes/RedisClient";
 import { UserLoginType, UserRegisterType, UserType } from "../../Classes/Types";
 import User from "../../Classes/Users/User";
 import UserValidation from "../../Classes/Users/UserValidation";
@@ -7,20 +8,18 @@ const pubsub = new PubSub();
 
 export const UserResolvers = {
   Query: {
-    users: (_: any, __: any, { currentUser }: { currentUser: UserType }) =>
-      User.getAll(currentUser),
+    users: (_: any, __: any, { userId }: { userId: string }) =>
+      User.getAll(userId),
     login: async (_: any, LoginUser: UserLoginType) => {
       const user = new User();
       return await user.login(LoginUser);
     },
-    user: async (
-      _: any,
-      __: any,
-      { currentUser }: { currentUser: UserType }
-    ) => {
-      if (currentUser)
-        return await UserValidation.getUserIfExists({ _id: currentUser._id });
+    user: async (_: any, __: any, { userId }: { userId: string }) => {
+      if (userId) return await UserValidation.getUserIfExists({ _id: userId });
       return null;
+    },
+    logout: (_: any, __: any, { token }: { token: string }) => {
+      return redisClient.del(token);
     },
   },
   Mutation: {
@@ -43,10 +42,10 @@ export const UserResolvers = {
     sendFriendRequest: async (
       _: any,
       { friendId }: { friendId: string },
-      { currentUser }: { currentUser: IUser }
+      { userId }: { userId: string }
     ) => {
       const user = new User();
-      const res = await user.sendFriendRequest(currentUser, friendId);
+      const res = await user.sendFriendRequest(userId, friendId);
       if (res.data) {
         pubsub.publish("FRIEND_REQUEST_RECIEVED", {
           friendRequestRecieved: res.data,
@@ -62,9 +61,9 @@ export const UserResolvers = {
         (
           payload: { friendRequestRecieved: { from: IUser; to: string } },
           variables,
-          { currentUser }: { currentUser: IUser }
+          { userId }: { userId: string }
         ) => {
-          return currentUser._id == payload.friendRequestRecieved.to;
+          return userId == payload.friendRequestRecieved.to;
         }
       ),
     },

@@ -201,7 +201,7 @@ describe("Send friend requests", () => {
     UserValidation.getUserIfExists = jest.fn().mockReturnValueOnce(null);
     const user = new User();
     try {
-      await user.sendFriendRequest(userModelDoc, "ramy@hotmail.com");
+      await user.sendFriendRequest(userModelDoc._id, "ramy@hotmail.com");
     } catch (error) {
       expect(error.message).toEqual("User doesn't exist");
     }
@@ -216,7 +216,7 @@ describe("Send friend requests", () => {
       .mockReturnValueOnce(null);
     const user = new User();
     try {
-      await user.sendFriendRequest(userModelDoc, "ramy@hotmail.com");
+      await user.sendFriendRequest(userModelDoc._id, "ramy@hotmail.com");
     } catch (error) {
       expect(error.message).toEqual("User doesn't exist");
     }
@@ -232,7 +232,7 @@ describe("Send friend requests", () => {
       .mockReturnValueOnce(friendModelDoc);
     const user = new User();
     const res = await user.sendFriendRequest(
-      userModelDoc,
+      userModelDoc._id,
       friendModelDoc.email
     );
     expect(res.message).toEqual("already sent a friend request before");
@@ -243,7 +243,10 @@ describe("Send friend requests", () => {
     AuthorizeUser.verifyUser = jest.fn().mockReturnValue(userModelDoc);
     UserValidation.getUserIfExists = jest.fn().mockReturnValue(userModelDoc);
     const user = new User();
-    const res = await user.sendFriendRequest(userModelDoc, userModelDoc._id);
+    const res = await user.sendFriendRequest(
+      userModelDoc._id,
+      userModelDoc._id
+    );
     expect(res.message).toEqual("cannot add your self");
   });
 
@@ -256,7 +259,10 @@ describe("Send friend requests", () => {
       .mockReturnValueOnce(friendModelDoc);
     UserModel.prototype.save = jest.fn().mockReturnThis();
     const user = new User();
-    const res = await user.sendFriendRequest(userModelDoc, "ramy@hotmail.com");
+    const res = await user.sendFriendRequest(
+      userModelDoc._id._id,
+      "ramy@hotmail.com"
+    );
     expect(res.message).toEqual("Friend Request Sent");
     expect(friendModelDoc.friendRequests.includes(userModelDoc._id)).toEqual(
       true
@@ -278,7 +284,7 @@ describe("Send friend requests", () => {
       .mockReturnValueOnce(friendModelDoc);
     const user = new User();
     const res = await user.sendFriendRequest(
-      userModelDoc,
+      userModelDoc._id,
       friendModelDoc.email
     );
     expect(res.message).toEqual("You are friends now");

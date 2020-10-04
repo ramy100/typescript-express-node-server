@@ -16,6 +16,12 @@ export const LOGIN_USER = gql`
   }
 `;
 
+export const LOGOUT_USER = gql`
+  query LogoutUser {
+    logout
+  }
+`;
+
 export const GET_USERS = gql`
   query GetUsers {
     users {

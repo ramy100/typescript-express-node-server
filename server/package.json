@@ -23,7 +23,8 @@
     "graphql": "^15.3.0",
     "joi": "^17.2.1",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.10.7"
+    "mongoose": "^5.10.7",
+    "redis": "^3.0.2"
   },
   "devDependencies": {
     "@types/bcrypt": "^3.0.0",
@@ -32,6 +33,7 @@
     "@types/joi": "^14.3.4",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/mongoose": "^5.7.36",
+    "@types/redis": "^2.8.27",
     "jest": "^26.4.2",
     "nodemon": "^2.0.4",
     "ts-jest": "^26.4.1",

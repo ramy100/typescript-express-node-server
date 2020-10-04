@@ -25,7 +25,7 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.3",
     "subscriptions-transport-ws": "^0.9.18",
-    "typescript": "~3.7.2"
+    "typescript": "^3.9.7"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -49,6 +49,7 @@
     ]
   },
   "devDependencies": {
+    "@types/bootstrap": "^4.5.0",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/react-router-dom": "^5.1.5"
   }

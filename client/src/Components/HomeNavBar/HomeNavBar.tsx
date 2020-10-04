@@ -6,8 +6,8 @@ import { Link, useHistory } from "react-router-dom";
 import { useAuthDispatch, useAuthState } from "../../context/auth";
 import "./HomeNavBar.scss";
 import { User } from "../../Classes/User";
-import { GET_USER_FROM_TOKEN } from "../../GraphQl/Queries";
-import { useQuery } from "@apollo/client";
+import { GET_USER_FROM_TOKEN, LOGOUT_USER } from "../../GraphQl/Queries";
+import { useLazyQuery, useQuery } from "@apollo/client";
 
 const HomeNavBar = () => {
   const dispatch = useAuthDispatch();
@@ -15,7 +15,7 @@ const HomeNavBar = () => {
 
   const history = useHistory();
   const logout = () => {
-    User.logOut(dispatch, history);
+    LogOUTUserGql();
   };
 
   const { data, loading } = useQuery(GET_USER_FROM_TOKEN, {
@@ -24,15 +24,27 @@ const HomeNavBar = () => {
     },
   });
 
+  const [LogOUTUserGql, { loading: loadingLogout }] = useLazyQuery(
+    LOGOUT_USER,
+    {
+      onCompleted: (res) => {
+        User.logOut(dispatch, history);
+      },
+      onError: (err) => {
+        console.log(err);
+      },
+    }
+  );
+
   return (
     <div>
-      <Navbar collapseOnSelect expand='lg' bg='dark' variant='dark'>
-        <Navbar.Brand as={Link} to='/'>
+      <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
+        <Navbar.Brand as={Link} to="/">
           {user?.username ? `Welcome ${user?.username}` : "Home"}
         </Navbar.Brand>
-        <Navbar.Toggle aria-controls='responsive-navbar-nav' />
-        <Navbar.Collapse id='responsive-navbar-nav'>
-          <Nav className='mr-auto'>
+        <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+        <Navbar.Collapse id="responsive-navbar-nav">
+          <Nav className="mr-auto">
             {/* <Nav.Link href='#features'>Features</Nav.Link> */}
             {/* <Nav.Link href='#pricing'>Pricing</Nav.Link> */}
             {/* <NavDropdown title='Dropdown' id='collasible-nav-dropdown'> */}
@@ -47,24 +59,24 @@ const HomeNavBar = () => {
               </NavDropdown.Item> */}
             {/* </NavDropdown> */}
           </Nav>
-          <Nav className='nav-links'>
+          <Nav className="nav-links">
             {user ? (
               <Fragment>
-                <Button variant='dark' className='with-notification'>
+                <Button variant="dark" className="with-notification">
                   <FontAwesomeIcon icon={faBell} />
-                  <div className='notifications'>1</div>
+                  <div className="notifications">1</div>
                 </Button>
-                <Button variant='dark' className='with-notification'>
+                <Button variant="dark" className="with-notification">
                   <FontAwesomeIcon icon={faUserFriends} />
                   {user?.friendRequests?.length ? (
-                    <div className='notifications'>
+                    <div className="notifications">
                       {user?.friendRequests?.length}
                     </div>
                   ) : (
                     ""
                   )}
                 </Button>
-                <Button onClick={logout} variant='danger'>
+                <Button onClick={logout} variant="danger">
                   Logout
                 </Button>
               </Fragment>
@@ -73,10 +85,10 @@ const HomeNavBar = () => {
             )}
             {!user ? (
               <Fragment>
-                <Link className='text-light' to='/login'>
+                <Link className="text-light" to="/login">
                   Login
                 </Link>
-                <Link className='text-light' to='/register'>
+                <Link className="text-light" to="/register">
                   Register
                 </Link>
               </Fragment>

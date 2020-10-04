@@ -1,10 +1,11 @@
 // import express from "express";
 import dotenv from "dotenv";
 import Database from "./Classes/Db";
-import { ApolloServer } from "apollo-server";
+import { ApolloServer, AuthenticationError } from "apollo-server";
 import { resolvers, typeDefs } from "./GraphQl/root";
 import AuthorizeUser from "./Classes/Users/AuthorizeUsers";
 dotenv.config();
+import { redisGetAsync } from "./Classes/RedisClient";
 
 const mongoDbConfig = {
   dbName: process.env.DB_NAME,
@@ -16,15 +17,22 @@ const mongoDbConfig = {
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: ({ req, connection }) => {
+  context: async ({ req, connection }) => {
     let token: string | undefined;
+    let decoded;
     if (connection) {
-      token = connection?.context?.Authorization?.split(" ")[1];
+      token = connection?.context?.authorization?.split(" ")[1];
     } else {
       token = req?.headers?.authorization?.split(" ")[1];
     }
-    const currentUser = AuthorizeUser.verifyUser(token);
-    return { currentUser };
+    if (token) {
+      const exists = await redisGetAsync(token);
+      if (exists) decoded = AuthorizeUser.verifyUser(token);
+    }
+    if (connection && !decoded?.userId)
+      throw new AuthenticationError("Unauthorized");
+
+    return { userId: decoded?.userId, token };
   },
 });
 
