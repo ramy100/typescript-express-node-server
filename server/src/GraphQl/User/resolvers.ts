@@ -8,8 +8,11 @@ const pubsub = new PubSub();
 
 export const UserResolvers = {
   Query: {
-    users: (_: any, __: any, { userId }: { userId: string }) =>
-      User.getAll(userId),
+    users: (
+      _: any,
+      { pageNum }: { pageNum: number },
+      { userId }: { userId: string }
+    ) => User.getNonFriends(userId, pageNum),
     login: async (_: any, LoginUser: UserLoginType) => {
       const user = new User();
       return await user.login(LoginUser);

@@ -1,0 +1,17 @@
+.user {
+  min-height: 100px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  .avatar {
+    background-color: greenyellow;
+    border-radius: 50%;
+    width: 90px;
+    height: 90%;
+    text-align: center;
+  }
+  .username {
+    color: rgb(65, 129, 225);
+    font-weight: bold;
+  }
+}

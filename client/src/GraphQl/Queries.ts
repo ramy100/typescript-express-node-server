@@ -23,8 +23,8 @@ export const LOGOUT_USER = gql`
 `;
 
 export const GET_USERS = gql`
-  query GetUsers {
-    users {
+  query GetUsers($pageNum: Int!) {
+    users(pageNum: $pageNum) {
       username
       id
       avatar

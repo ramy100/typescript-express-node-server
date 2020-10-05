@@ -7,10 +7,21 @@ import UserValidation from "./UserValidation";
 export default class User {
   constructor() {}
 
-  static async getAll(user: any) {
-    if (!user) throw new Error("Unauthorized action");
+  static async getNonFriends(userId: any, pageNum: number) {
+    if (!userId) throw new Error("Unauthorized action");
+    const usersPerPage = 5;
     try {
-      return await UserModel.find().populate(["friendRequests", "friends"]);
+      const user = await UserModel.findById(userId).select(
+        "friends friendRequests"
+      );
+      const { friendRequests, friends } = user as IUser;
+      const users = await UserModel.find({
+        friendRequests: { $nin: [...friends, ...friendRequests] },
+      })
+        .sort("regeisterd_at")
+        .limit(usersPerPage)
+        .skip(pageNum * usersPerPage);
+      return users;
     } catch (error) {
       return new Error("Couldn't get all users");
     }

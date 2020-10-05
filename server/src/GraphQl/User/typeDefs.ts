@@ -30,7 +30,7 @@ export const UserTypeDefs = gql`
   }
 
   extend type Query {
-    users: [User]
+    users(pageNum: Int): [User]
     user: User
     login(email: String, password: String): LoginToken
     logout: Boolean

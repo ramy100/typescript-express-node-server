@@ -2,12 +2,15 @@ import React, { useEffect } from "react";
 import "./App.scss";
 import MainPage from "./Components/MainPage/MainPage";
 import { AuthProvider } from "./context/auth";
+import { UsersProvider } from "./context/users";
 
 function App() {
   return (
-    <div className='App'>
+    <div className="App">
       <AuthProvider>
-        <MainPage />
+        <UsersProvider>
+          <MainPage />
+        </UsersProvider>
       </AuthProvider>
     </div>
   );

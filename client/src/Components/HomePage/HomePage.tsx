@@ -1,20 +1,11 @@
-import { useQuery, useSubscription } from "@apollo/client";
+import { useSubscription } from "@apollo/client";
 import React, { useEffect } from "react";
 import { useAuthDispatch, useAuthState } from "../../context/auth";
-import { GET_USERS } from "../../GraphQl/Queries";
 import { FRIEND_REQUEST_SUPSRIBTION } from "../../GraphQl/Subscriptions";
 
 const HomePage = () => {
   const { user } = useAuthState();
   const dispatch = useAuthDispatch();
-  const { loading, error, data } = useQuery(GET_USERS, {
-    onError: (error) => {
-      console.log(error.message);
-    },
-    onCompleted: (data) => {
-      // console.log(data.users);
-    },
-  });
 
   const {
     data: newFriendRequest,
