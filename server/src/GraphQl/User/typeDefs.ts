@@ -34,6 +34,7 @@ export const UserTypeDefs = gql`
     user: User
     login(email: String, password: String): LoginToken
     logout: Boolean
+    getAll: [User]
   }
   type Mutation {
     register(

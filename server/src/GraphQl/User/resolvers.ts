@@ -8,6 +8,9 @@ const pubsub = new PubSub();
 
 export const UserResolvers = {
   Query: {
+    getAll: async () => {
+      return await UserModel.find({}).populate("friends friendRequests");
+    },
     users: (
       _: any,
       { pageNum }: { pageNum: number },
@@ -18,7 +21,11 @@ export const UserResolvers = {
       return await user.login(LoginUser);
     },
     user: async (_: any, __: any, { userId }: { userId: string }) => {
-      if (userId) return await UserValidation.getUserIfExists({ _id: userId });
+      if (userId)
+        return await UserValidation.getUserIfExists({
+          _id: userId,
+          populate: true,
+        });
       return null;
     },
     logout: (_: any, __: any, { token }: { token: string }) => {

@@ -4,9 +4,10 @@ export class User {
     dispatch({ type: "LOGIN", payload: user });
     history.push("/");
   }
-  static logOut(dispatch: any, history: any) {
+  static logOut(authDispatch: any, usersDispatch: any, history: any) {
     localStorage.removeItem("token");
-    dispatch({ type: "LOGOUT" });
+    authDispatch({ type: "LOGOUT" });
+    usersDispatch({ type: "LOGOUT" });
     history.push("/login");
   }
 }

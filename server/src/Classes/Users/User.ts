@@ -11,12 +11,9 @@ export default class User {
     if (!userId) throw new Error("Unauthorized action");
     const usersPerPage = 5;
     try {
-      const user = await UserModel.findById(userId).select(
-        "friends friendRequests"
-      );
-      const { friendRequests, friends } = user as IUser;
       const users = await UserModel.find({
-        friendRequests: { $nin: [...friends, ...friendRequests] },
+        friendRequests: { $nin: userId },
+        friends: { $nin: userId },
       })
         .sort("regeisterd_at")
         .limit(usersPerPage)

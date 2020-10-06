@@ -40,7 +40,6 @@ const Users = () => {
           <h5>Loading Users</h5>
         </div>
       )}
-      {!hasMoreToFetch && <div>No More Results</div>}
     </div>
   );
 };

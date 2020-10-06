@@ -2,6 +2,7 @@ import React, { createContext, useReducer, useContext } from "react";
 
 const AuthStateContext = createContext();
 const AuthDispatchContext = createContext();
+const initialState = { user: null };
 
 const authReducer = (state, action) => {
   switch (action.type) {
@@ -12,7 +13,7 @@ const authReducer = (state, action) => {
       };
 
     case "LOGOUT":
-      return { ...state, user: null };
+      return initialState;
 
     case "ADD_FRIEND_REQUESTS":
       return {
@@ -29,7 +30,7 @@ const authReducer = (state, action) => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(authReducer, { user: null });
+  const [state, dispatch] = useReducer(authReducer, initialState);
   return (
     <AuthDispatchContext.Provider value={dispatch}>
       <AuthStateContext.Provider value={state}>

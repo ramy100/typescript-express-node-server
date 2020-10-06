@@ -16,9 +16,6 @@ const HomeNavBar = () => {
   const usersModaldispatch = useUsersDispatch();
 
   const history = useHistory();
-  const logout = () => {
-    LogOUTUserGql();
-  };
 
   const { data, loading } = useQuery(GET_USER_FROM_TOKEN, {
     onCompleted: (data) => {
@@ -31,7 +28,7 @@ const HomeNavBar = () => {
     {
       onCompleted: (res) => {
         usersModaldispatch({ type: "CLOSE_MODAL" });
-        User.logOut(Authdispatch, history);
+        User.logOut(Authdispatch, usersModaldispatch, history);
       },
       onError: (err) => {
         console.log(err);
@@ -82,7 +79,7 @@ const HomeNavBar = () => {
                   ""
                 )}
               </Button>
-              <Button onClick={logout} variant="danger">
+              <Button onClick={() => LogOUTUserGql()} variant="danger">
                 Logout
               </Button>
             </Fragment>

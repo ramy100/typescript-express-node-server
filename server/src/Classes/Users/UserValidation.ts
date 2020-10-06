@@ -54,13 +54,19 @@ export default class UserValidation {
   static async getUserIfExists({
     email,
     _id,
+    populate,
   }: {
     email?: string;
     _id?: string;
+    populate?: boolean;
   }) {
-    return await UserModel.findOne({ $or: [{ email }, { _id }] }).populate(
-      "friends friendRequests"
-    );
+    if (populate) {
+      return await UserModel.findOne({ $or: [{ email }, { _id }] }).populate(
+        "friends friendRequests"
+      );
+    } else {
+      return await UserModel.findOne({ $or: [{ email }, { _id }] });
+    }
   }
 
   static async comparePasswordWithHash(password: string, hash: string) {
@@ -72,10 +78,7 @@ export default class UserValidation {
   }
 
   static checkFriendRequests(userToCheck: IUser, friend: IUser) {
-    console.log(userToCheck.friendRequests);
-    return userToCheck.friendRequests.some(
-      (friendRequest) => friendRequest._id != friend._id
-    );
+    return userToCheck.friendRequests.includes(friend._id);
   }
 
   static checkIfFriends(userToCheck: IUser, friend: IUser) {

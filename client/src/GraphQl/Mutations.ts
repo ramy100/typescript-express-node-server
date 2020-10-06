@@ -22,3 +22,13 @@ export const REGISTER_USER = gql`
     }
   }
 `;
+
+export const SEND_FRIEND_REQUEST = gql`
+  mutation sendFriendRequest($friendId: String) {
+    sendFriendRequest(friendId: $friendId) {
+      message
+      code
+      success
+    }
+  }
+`;
