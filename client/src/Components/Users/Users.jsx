@@ -1,11 +1,14 @@
 import React, { useCallback, useRef } from "react";
 import { Spinner } from "react-bootstrap";
+import { useAuthState } from "../../context/auth";
 import { useUsersDispatch, useUsersState } from "../../context/users";
 import useGetUsers from "../../Hooks/useGetUsers";
+import FriendRequest from "../FriendRequest/FriendRequest";
 import User from "../User/User";
 import "./Users.scss";
 const Users = () => {
   const { users, pageNum, hasMoreToFetch } = useUsersState();
+  const { user } = useAuthState();
   const usersDispatch = useUsersDispatch();
   const { loading } = useGetUsers(pageNum);
 
@@ -26,6 +29,10 @@ const Users = () => {
 
   return (
     <div className="users-list">
+      {user?.friendRequests.map((friendReq) => (
+        <FriendRequest key={user.id} user={friendReq} />
+      ))}
+      <hr className="solid" />
       {users?.map((user, index) => (
         <User
           lastElCallback={lastElCallback}

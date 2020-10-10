@@ -24,6 +24,17 @@ const authReducer = (state, action) => {
         },
       };
 
+    case "REMOVE_FRIEND_REQUEST":
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          friendRequests: state.user.friendRequests.filter(
+            (friend) => friend.id !== action.payload
+          ),
+        },
+      };
+
     default:
       throw new Error(`Unknown Action Type ${action.type}`);
   }

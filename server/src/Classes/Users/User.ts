@@ -60,6 +60,7 @@ export default class User {
 
     const user = await UserValidation.getUserIfExists({
       email: loginUser.email,
+      populate: true,
     });
     if (!user)
       throw new Error("Email is not registered create new account ?!!");
@@ -156,10 +157,20 @@ export default class User {
 
     const inFriendRequests = UserValidation.checkFriendRequests(user, friend);
     if (!inFriendRequests)
-      throw Error("You dont have friend request from this user");
-
+      return new GqlResponse(
+        "You dont have friend request from this user",
+        undefined,
+        403,
+        false
+      );
     this.addFriend(user, friend);
-    return "You are now friends";
+    try {
+      await user.save();
+      await friend.save();
+      return new GqlResponse("You are now friends", friend._id);
+    } catch (error) {
+      return new GqlResponse(error.message, undefined, 403, false);
+    }
   }
 
   async saveUser(user: Document) {

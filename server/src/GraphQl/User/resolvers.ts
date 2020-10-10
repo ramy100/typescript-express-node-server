@@ -63,6 +63,14 @@ export const UserResolvers = {
       }
       return res;
     },
+    acceptFriendRequest: async (
+      _: any,
+      { friendId }: { friendId: string },
+      { userId }: { userId: string }
+    ) => {
+      const user = new User();
+      return await user.acceptFriendRequest(userId, friendId);
+    },
   },
   Subscription: {
     friendRequestRecieved: {
@@ -76,6 +84,11 @@ export const UserResolvers = {
           return userId == payload.friendRequestRecieved.to;
         }
       ),
+    },
+  },
+  IResponse: {
+    __resolveType() {
+      return null;
     },
   },
 };

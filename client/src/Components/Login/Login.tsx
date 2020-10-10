@@ -3,7 +3,7 @@ import { Button, Form, Spinner } from "react-bootstrap";
 import FormTextField from "../FormTextField/FormTextField";
 import { Link, useHistory } from "react-router-dom";
 import "./Login.scss";
-import { gql, useLazyQuery } from "@apollo/client";
+import { useLazyQuery } from "@apollo/client";
 import { useAuthDispatch } from "../../context/auth";
 import { LOGIN_USER } from "../../GraphQl/Queries";
 import { User } from "../../Classes/User";
@@ -46,30 +46,30 @@ const Login = () => {
 
   return (
     <Fragment>
-      <div className='mainWrapper'>
-        <div className='login-form'>
-          <h1 className='text-center'>Login</h1>
+      <div className="mainWrapper">
+        <div className="login-form">
+          <h1 className="text-center">Login</h1>
           <Form onSubmit={LoginUser}>
             <FormTextField
-              label='Email Address'
-              fieldName='email'
+              label="Email Address"
+              fieldName="email"
               inputChange={inputChange}
-              placeholder='Enter Email'
+              placeholder="Enter Email"
               error={formErrors?.email}
             />
             <FormTextField
-              label='Password'
-              fieldName='password'
+              label="Password"
+              fieldName="password"
               inputChange={inputChange}
-              placeholder='Password'
-              type='password'
+              placeholder="Password"
+              type="password"
               error={formErrors?.password}
             />
-            <div className='submit-button'>
-              <Button disabled={loading} variant='success' type='submit'>
-                {loading ? <Spinner animation='border' /> : "Login"}
+            <div className="submit-button">
+              <Button disabled={loading} variant="success" type="submit">
+                {loading ? <Spinner animation="border" /> : "Login"}
               </Button>
-              <Link to='/register'>Dont have an account ? create one</Link>
+              <Link to="/register">Dont have an account ? create one</Link>
             </div>
           </Form>
         </div>

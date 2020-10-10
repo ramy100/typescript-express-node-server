@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import "./App.scss";
 import MainPage from "./Components/MainPage/MainPage";
 import { AuthProvider } from "./context/auth";

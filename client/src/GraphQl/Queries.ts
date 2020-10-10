@@ -9,7 +9,16 @@ export const LOGIN_USER = gql`
         username
         email
         friendRequests {
+          id
           email
+          username
+          avatar
+        }
+        friends {
+          id
+          email
+          username
+          avatar
         }
       }
     }

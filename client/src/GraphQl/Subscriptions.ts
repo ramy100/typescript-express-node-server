@@ -5,6 +5,7 @@ export const FRIEND_REQUEST_SUPSRIBTION = gql`
     friendRequestRecieved {
       to
       from {
+        id
         username
         email
         avatar

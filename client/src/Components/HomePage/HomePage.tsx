@@ -1,11 +1,13 @@
 import { useSubscription } from "@apollo/client";
 import React, { useEffect } from "react";
 import { useAuthDispatch, useAuthState } from "../../context/auth";
+import { useUsersDispatch } from "../../context/users";
 import { FRIEND_REQUEST_SUPSRIBTION } from "../../GraphQl/Subscriptions";
 
 const HomePage = () => {
   const { user } = useAuthState();
-  const dispatch = useAuthDispatch();
+  const authDispatch = useAuthDispatch();
+  const usersDispatch = useUsersDispatch();
 
   const {
     data: newFriendRequest,
@@ -14,9 +16,13 @@ const HomePage = () => {
 
   useEffect(() => {
     if (newFriendRequest?.friendRequestRecieved?.from) {
-      dispatch({
+      authDispatch({
         type: "ADD_FRIEND_REQUESTS",
         payload: newFriendRequest?.friendRequestRecieved.from,
+      });
+      usersDispatch({
+        type: "REMOVE_FROM_NOT_ADDED_USERS",
+        payload: newFriendRequest?.friendRequestRecieved.from.id,
       });
     }
   }, [newFriendRequest?.friendRequestRecieved]);

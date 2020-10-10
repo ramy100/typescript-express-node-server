@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { BrowserRouter as Router, Switch } from "react-router-dom";
 import HomePage from "../HomePage/HomePage";
 import Login from "../Login/Login";
