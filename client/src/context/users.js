@@ -7,6 +7,7 @@ const initialState = {
   showModal: false,
   users: [],
   pageNum: 0,
+  currentPage: null,
   hasMoreToFetch: true,
 };
 
@@ -31,7 +32,16 @@ const usersReducer = (state, action) => {
       };
 
     case "INCREMENT_PAGE_NUM":
-      return { ...state, pageNum: state.pageNum + 1 };
+      return {
+        ...state,
+        pageNum: state.pageNum + 1,
+      };
+
+    case "SET_CURRENT_PAGE":
+      return {
+        ...state,
+        currentPage: action.payload,
+      };
 
     case "SET_HAS_MORE":
       return { ...state, hasMoreToFetch: action.payload };

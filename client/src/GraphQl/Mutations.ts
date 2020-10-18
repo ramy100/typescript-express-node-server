@@ -39,7 +39,12 @@ export const ACCEPT_FRIEND_REQUEST = gql`
       message
       code
       success
-      data
+      data {
+        id
+        email
+        username
+        avatar
+      }
     }
   }
 `;

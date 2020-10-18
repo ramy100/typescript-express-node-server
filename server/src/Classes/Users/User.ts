@@ -12,6 +12,7 @@ export default class User {
     const usersPerPage = 5;
     try {
       const users = await UserModel.find({
+        _id: { $ne: userId },
         friendRequests: { $nin: userId },
         friends: { $nin: userId },
       })
@@ -167,7 +168,7 @@ export default class User {
     try {
       await user.save();
       await friend.save();
-      return new GqlResponse("You are now friends", friend._id);
+      return new GqlResponse("You are now friends", friend);
     } catch (error) {
       return new GqlResponse(error.message, undefined, 403, false);
     }

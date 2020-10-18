@@ -9,10 +9,9 @@ const HomePage = () => {
   const authDispatch = useAuthDispatch();
   const usersDispatch = useUsersDispatch();
 
-  const {
-    data: newFriendRequest,
-    loading: friendRequestLoading,
-  } = useSubscription(FRIEND_REQUEST_SUPSRIBTION);
+  const { data: newFriendRequest } = useSubscription(
+    FRIEND_REQUEST_SUPSRIBTION
+  );
 
   useEffect(() => {
     if (newFriendRequest?.friendRequestRecieved?.from) {
@@ -29,7 +28,7 @@ const HomePage = () => {
 
   return (
     <div>
-      <h1>{user.email}</h1>
+      <h1>{user?.friends.map((friend: any) => friend.email)}</h1>
     </div>
   );
 };

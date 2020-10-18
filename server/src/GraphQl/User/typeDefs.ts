@@ -26,6 +26,13 @@ export const UserTypeDefs = gql`
     data: FriendRequest
   }
 
+  type AcceptFriendRequestResponse implements IResponse {
+    code: Int
+    success: Boolean
+    message: String
+    data: User
+  }
+
   type User {
     id: String
     username: String
@@ -58,6 +65,6 @@ export const UserTypeDefs = gql`
     ): LoginToken
     deleteAll: Boolean
     sendFriendRequest(friendId: String): FriendRequestResponse
-    acceptFriendRequest(friendId: String): Response
+    acceptFriendRequest(friendId: String): AcceptFriendRequestResponse
   }
 `;

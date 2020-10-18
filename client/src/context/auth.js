@@ -35,6 +35,15 @@ const authReducer = (state, action) => {
         },
       };
 
+    case "ADD_FRIEND":
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          friends: [...state.user.friends, action.payload],
+        },
+      };
+
     default:
       throw new Error(`Unknown Action Type ${action.type}`);
   }

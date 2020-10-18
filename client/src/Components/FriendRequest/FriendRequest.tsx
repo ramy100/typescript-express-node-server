@@ -16,10 +16,15 @@ const FriendRequest = ({
       onCompleted: ({
         acceptFriendRequest: { message, code, success, data },
       }) => {
+        const { id, email, username, avatar } = data;
         if (code === 200) {
           authDispatch({
             type: "REMOVE_FRIEND_REQUEST",
-            payload: data,
+            payload: id,
+          });
+          authDispatch({
+            type: "ADD_FRIEND",
+            payload: { id, email, username, avatar },
           });
         }
         console.log("code :>> ", code);
