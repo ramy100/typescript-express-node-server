@@ -1,10 +1,4 @@
-import React, {
-  Fragment,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import React, { Fragment, useCallback, useRef } from "react";
 import { Spinner } from "react-bootstrap";
 import { useAuthState } from "../../context/auth";
 import { useUsersDispatch, useUsersState } from "../../context/users";
@@ -34,11 +28,11 @@ const Users = () => {
   );
 
   return (
-    <div className="users-list">
+    <div className='users-list'>
       {user?.friendRequests.map((friendReq) => (
         <Fragment key={user.id}>
           <FriendRequest user={friendReq} />
-          <hr className="solid" />
+          <hr className='solid' />
         </Fragment>
       ))}
       {users?.map((user, index) => (
@@ -50,13 +44,13 @@ const Users = () => {
         />
       ))}
       {loading && (
-        <div className="center">
-          <Spinner className="spin" animation="border" />
+        <div className='center'>
+          <Spinner className='spin' animation='border' />
           <h5>Loading Users</h5>
         </div>
       )}
       {!loading && users.length === 0 && (
-        <div className="center">
+        <div className='center'>
           <h5>No Results</h5>
         </div>
       )}

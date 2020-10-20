@@ -1,0 +1,45 @@
+version: "3.8"
+services:
+  server:
+    build: ./server
+    working_dir: /server
+    environment:
+      - DB_USER=Empty
+      - DB_USER_PASS=Empty
+      - DB_NAME=Empty
+      - DB_CLUSTER_NAME=Empty
+      - JWT_SECRET=Empty
+    ports:
+      - "4000:4000"
+    networks:
+      - "mern-app"
+    volumes:
+      - ./server:/server
+      - /server/node_modules/
+    depends_on:
+      - "redis"
+  client:
+    build: ./client
+    stdin_open: true
+    volumes:
+      - ./client:/client
+      - /client/node_modules/
+    environment:
+      - JWT_SECRET=Empty
+      - CHOKIDAR_USEPOLLING=true
+    ports:
+      - "3000:3000"
+    networks:
+      - "mern-app"
+    depends_on:
+      - "redis"
+  redis:
+    image: redis:latest
+    ports:
+      - 6379:6379
+    networks:
+      - "mern-app"
+    command: ["redis-server"]
+networks:
+  mern-app:
+    driver: bridge
