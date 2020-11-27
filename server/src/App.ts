@@ -1,7 +1,7 @@
 // import express from "express";
 import dotenv from "dotenv";
 import Database from "./Classes/Db";
-import { ApolloServer, AuthenticationError } from "apollo-server";
+import { ApolloServer, AuthenticationError, PubSub } from "apollo-server";
 import { resolvers, typeDefs } from "./GraphQl/root";
 import AuthorizeUser from "./Classes/Users/AuthorizeUsers";
 dotenv.config();
@@ -14,6 +14,8 @@ const mongoDbConfig = {
   dbClusterName: process.env.DB_CLUSTER_NAME,
 };
 
+const pubsub = new PubSub();
+
 const server = new ApolloServer({
   typeDefs,
   resolvers,
@@ -21,7 +23,7 @@ const server = new ApolloServer({
     let token: string | undefined;
     let decoded;
     if (connection) {
-      token = connection?.context?.authorization?.split(" ")[1];
+      token = connection?.context?.Authorization?.split(" ")[1];
     } else {
       token = req?.headers?.authorization?.split(" ")[1];
     }
@@ -32,7 +34,7 @@ const server = new ApolloServer({
     if (connection && !decoded?.userId)
       throw new AuthenticationError("Unauthorized");
 
-    return { userId: decoded?.userId, token };
+    return { userId: decoded?.userId, token, pubsub };
   },
 });
 

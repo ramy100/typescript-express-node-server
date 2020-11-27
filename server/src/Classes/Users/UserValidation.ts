@@ -1,54 +1,19 @@
-import Joi from "joi";
 import UserModel from "../../models/User";
 import { UserLoginType, UserRegisterType } from "../Types";
 import bcrypt from "bcrypt";
 import { IUser } from "../../models/User";
+import {
+  loginValidationRules,
+  registerValidationRules,
+} from "../../utils/ValidationSchemas";
 
 export default class UserValidation {
   static validateRegisterUser(user: UserRegisterType) {
-    const schema = Joi.object({
-      username: Joi.string().alphanum().min(3).max(30).required(),
-      password: Joi.string().required().min(3).max(30).alphanum().messages({
-        "string.base": `password should be Text`,
-        "string.alphanum": `password should contain only characters and numbers`,
-        "string.empty": `password cannot be empty`,
-        "string.min": `password should have a minimum length of {#limit}`,
-        "string.max": `password should have a maximum length of {#limit}`,
-        "string.required": `password is a required`,
-      }),
-
-      repeat_password: Joi.ref("password"),
-      email: Joi.string()
-        .email({
-          minDomainSegments: 2,
-          tlds: { allow: ["com", "net"] },
-        })
-        .required(),
-      avatar: Joi.string(),
-    }).with("password", "repeat_password");
-
-    return schema.validate(user, { abortEarly: false });
+    return registerValidationRules.validate(user, { abortEarly: false });
   }
 
   static validateLoginUser(user: UserLoginType) {
-    const schema = Joi.object({
-      password: Joi.string().required().min(3).max(30).messages({
-        "string.base": `password should be Text`,
-        "string.empty": `password cannot be empty`,
-        "string.min": `password should have a minimum length of {#limit}`,
-        "string.max": `password should have a maximum length of {#limit}`,
-        "string.required": `password is a required`,
-      }),
-      email: Joi.string()
-        .email({
-          minDomainSegments: 2,
-          tlds: { allow: ["com", "net"] },
-        })
-        .required(),
-      avatar: Joi.string(),
-    });
-
-    return schema.validate(user, { abortEarly: false });
+    return loginValidationRules.validate(user, { abortEarly: false });
   }
 
   static async getUserIfExists({
