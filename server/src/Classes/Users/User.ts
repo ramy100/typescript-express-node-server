@@ -26,14 +26,20 @@ export default class User {
   }
 
   async registerUser(registerUser: UserRegisterType) {
-    const { email, password, username, avatar } = registerUser;
-    const result = UserValidation.validateRegisterUser(registerUser);
-    if (result.error) {
-      throw Error(JSON.stringify(result.error.details));
+    try {
+      await UserValidation.validateRegisterUser(registerUser);
+    } catch (error) {
+      const errObj = error.inner.reduce((acc: any, curr: any) => {
+        acc[curr.path] = curr.message;
+        return acc;
+      }, {});
+      throw Error(JSON.stringify(errObj));
     }
+    const { email, password, username, avatar } = registerUser;
+
     const user_exists = await UserValidation.getUserIfExists({ email });
     if (user_exists) {
-      throw Error("Email already exists");
+      throw Error(JSON.stringify({ msg: "Email already exists" }));
     }
     const hashedPass = await UserValidation.hashPassword(password);
     try {
@@ -46,39 +52,43 @@ export default class User {
       await user.save();
       const { _id } = user;
       const token = AuthorizeUser.singUser(_id);
-      return { token, user };
+      return new GqlResponse("Register Success", { token, user });
     } catch (error) {
       console.log(error);
-      throw new Error("Register failed");
+      throw Error(JSON.stringify({ msg: "Register failed" }));
     }
   }
 
   async login(loginUser: UserLoginType) {
-    const result = UserValidation.validateLoginUser(loginUser);
-    if (result.error) {
-      throw Error(JSON.stringify(result.error.details));
+    try {
+      await UserValidation.validateLoginUser(loginUser);
+    } catch (error) {
+      const errObj = error.inner.reduce((acc: any, curr: any) => {
+        acc[curr.path] = curr.message;
+        return acc;
+      }, {});
+      throw Error(JSON.stringify(errObj));
     }
-
     const user = await UserValidation.getUserIfExists({
       email: loginUser.email,
       populate: true,
     });
     if (!user)
-      throw new Error("Email is not registered create new account ?!!");
-
-    const { _id, password } = user;
-
+      throw new Error(
+        JSON.stringify({
+          msg: "Email is not registered create new account ?!!",
+        })
+      );
+    const { _id, password } = user!;
     const isCorrectPassword = await UserValidation.comparePasswordWithHash(
       loginUser.password,
       password
     );
-
     if (!isCorrectPassword) {
-      throw Error("Wrong credentials!!");
+      throw Error(JSON.stringify({ msg: "Wrong credentials!!" }));
     }
-
     const token = AuthorizeUser.singUser(_id);
-    return { token, user };
+    return new GqlResponse("Login Success", { token, user });
   }
 
   async sendFriendRequest(userId: string, friendId: string) {

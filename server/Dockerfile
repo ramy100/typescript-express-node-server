@@ -1,5 +1,5 @@
 # specify the node base image with your desired version node:<version>
-FROM node:12.19.0-slim
+FROM node:14.15.1-alpine3.10
 
 RUN mkdir /server
 

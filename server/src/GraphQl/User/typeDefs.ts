@@ -6,6 +6,11 @@ export const UserTypeDefs = gql`
     to: String
   }
 
+  type loginToken {
+    token: String
+    user: User
+  }
+
   interface IResponse {
     code: Int
     success: Boolean
@@ -26,6 +31,13 @@ export const UserTypeDefs = gql`
     data: FriendRequest
   }
 
+  type LoginResponse implements IResponse {
+    code: Int
+    success: Boolean
+    message: String
+    data: loginToken
+  }
+
   type AcceptFriendRequestResponse implements IResponse {
     code: Int
     success: Boolean
@@ -44,15 +56,10 @@ export const UserTypeDefs = gql`
     deactivated_at: DateTime
   }
 
-  type LoginToken {
-    token: String
-    user: User
-  }
-
   extend type Query {
     users(pageNum: Int): [User]
     user: User
-    login(email: String, password: String): LoginToken
+    login(email: String, password: String): LoginResponse
     logout: Boolean
     getAll: [User]
   }
@@ -62,7 +69,7 @@ export const UserTypeDefs = gql`
       email: String
       password: String
       repeat_password: String
-    ): LoginToken
+    ): LoginResponse
     deleteAll: Boolean
     del: Boolean
     sendFriendRequest(friendId: String): FriendRequestResponse
