@@ -1,6 +1,6 @@
 import { REGISTER_MUTATION } from './Mutations'
-export const register = async (vueObject, formData) => {
-  return await vueObject.$apollo.mutate({
+export const register = async (apollo, formData) => {
+  return await apollo.mutate({
     mutation: REGISTER_MUTATION,
     variables: {
       email: formData.email,

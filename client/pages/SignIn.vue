@@ -35,7 +35,7 @@
 
 <script>
 import SingForm from '../components/SingForm.vue'
-import { login } from '../GraphQl/Queries'
+import { loginWithEmailAndPasswordGql } from '../GraphQl/Queries'
 const initialFormData = {
   email: '',
   password: '',
@@ -57,15 +57,22 @@ export default {
       loading: false,
     }
   },
+  created() {
+    console.log(this.$store.state.auth.isAuthenticated)
+  },
   methods: {
     async login() {
       this.loading = true
       try {
-        const res = await login(this, this.formData)
+        const res = await loginWithEmailAndPasswordGql(
+          this.$apollo,
+          this.formData
+        )
+        const data = res.data?.login?.data
         this.loading = false
         this.formData = { ...initialFormData }
         this.errors = {}
-        console.log(res.data.login)
+        this.$store.commit('auth/login', { user: data.user, token: data.token })
       } catch (error) {
         const gqlError = error.graphQLErrors[0]?.message
         if (gqlError) this.errors = JSON.parse(gqlError)

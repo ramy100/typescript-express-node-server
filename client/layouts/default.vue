@@ -1,5 +1,11 @@
 <template>
   <v-app>
+    <v-overlay :value="loadingUSer" title="">
+      <v-progress-circular indeterminate size="64"
+        ><v-icon>mdi-lock</v-icon></v-progress-circular
+      >
+      <p class="mt-5">Logging in</p>
+    </v-overlay>
     <nav-bar />
     <v-main>
       <v-container>
@@ -15,6 +21,7 @@
 <script>
 import AppFooter from '../components/AppFooter.vue'
 import NavBar from '../components/NavBar.vue'
+import { getToken } from '../common/jwt.service'
 export default {
   components: { NavBar, AppFooter },
   data() {
@@ -39,6 +46,18 @@ export default {
       rightDrawer: false,
       title: 'Vuetify.js',
     }
+  },
+  computed: {
+    loadingUSer() {
+      return this.$store.state.auth.loading
+    },
+    user() {
+      return this.$store.state.auth.user
+    },
+  },
+  created() {
+    if (getToken())
+      this.$store.dispatch('auth/loginWithToken', { apollo: this.$apollo })
   },
 }
 </script>

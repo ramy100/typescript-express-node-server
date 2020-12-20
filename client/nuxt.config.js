@@ -20,7 +20,7 @@ export default {
   css: [],
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
-  plugins: [],
+  plugins: ['~/plugins/fragment.js'],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
   components: true,
@@ -38,9 +38,7 @@ export default {
 
   apollo: {
     clientConfigs: {
-      default: {
-        httpEndpoint: 'http://localhost:4000',
-      },
+      default: '~/plugins/my-alternative-apollo-config.js',
     },
   },
 

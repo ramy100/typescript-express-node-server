@@ -82,12 +82,12 @@ export default {
     async register() {
       this.loading = true
       try {
-        const res = await register(this, this.formData)
+        const res = await register(this.$apollo, this.formData)
+        const data = res.data?.register?.data
         this.loading = false
         this.formData = { ...initialFormData }
         this.errors = {}
-        console.log(res.data.register)
-        return
+        this.$store.commit('auth/login', { user: data.user, token: data.token })
       } catch (error) {
         const gqlError = error.graphQLErrors[0]?.message
         if (gqlError) this.errors = JSON.parse(gqlError)

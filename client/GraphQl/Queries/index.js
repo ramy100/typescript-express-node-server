@@ -1,3 +1,7 @@
-import { login } from './Calls'
+import {
+  loginWithEmailAndPasswordGql,
+  loginWithTokenGql,
+  logOut,
+} from './Calls'
 
-export { login }
+export { loginWithEmailAndPasswordGql, loginWithTokenGql, logOut }

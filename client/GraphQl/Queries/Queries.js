@@ -8,10 +8,53 @@ export const LOGIN_QUERY = gql`
       data {
         token
         user {
+          id
           username
           email
+          avatar
+          friendRequests {
+            id
+            email
+            username
+            avatar
+          }
+          friends {
+            id
+            email
+            username
+            avatar
+          }
         }
       }
     }
+  }
+`
+
+export const LOGIN_FROM_TOKEN_QUERY = gql`
+  query GetUserFromToken {
+    user {
+      id
+      username
+      email
+      avatar
+      friendRequests {
+        id
+        email
+        username
+        avatar
+      }
+      friends {
+        id
+        email
+        username
+        avatar
+      }
+    }
+  }
+`
+
+export const LOGOUT_USER_QUERY = gql`
+  query LogoutUser {
+    logout
   }
 `
