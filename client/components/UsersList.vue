@@ -181,18 +181,6 @@ export default {
         }
       },
     },
-    $subscribe: {
-      OnFriendRequestRecieved: {
-        query: FRIEND_REQUEST_SUPSRIBTION,
-        result(data) {
-          const newFriendRequest = data.data.friendRequestRecieved
-          this.$store.dispatch(
-            'users/friendRequestRecieved',
-            newFriendRequest.from
-          )
-        },
-      },
-    },
   },
 }
 </script>

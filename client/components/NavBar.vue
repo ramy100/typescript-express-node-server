@@ -110,8 +110,16 @@ export default {
   },
   methods: {
     async logOut() {
-      const success = await this.$store.dispatch('auth/logOut')
-      if (success) this.$router.push('/signin')
+      try {
+        const success = await this.$store.dispatch('auth/logOut')
+        if (success) {
+          this.$apolloHelpers.onLogout()
+          this.$router.push('/signin')
+          this.$store.dispatch('listeners/callSubListeners')
+        }
+      } catch (error) {
+        console.log('error logout')
+      }
     },
   },
 }

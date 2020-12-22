@@ -10,7 +10,7 @@
           </v-list-item-avatar>
         </v-list-item>
 
-        <v-list-item link>
+        <v-list-item v-if="user" link>
           <v-list-item-content>
             <v-list-item-title class="title">
               {{ user.username }}
@@ -21,7 +21,7 @@
       </v-list>
       <v-divider></v-divider>
       <v-list nav dense>
-        <users-list></users-list>
+        <users-list v-if="user"></users-list>
       </v-list>
     </v-navigation-drawer>
   </div>

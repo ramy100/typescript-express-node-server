@@ -52,6 +52,7 @@
 </template>
 
 <script>
+import { getToken } from '../common/jwt.service'
 import SingForm from '../components/SingForm.vue'
 const initialFormData = {
   email: '',
@@ -90,7 +91,11 @@ export default {
   methods: {
     async register() {
       const success = await this.$store.dispatch('auth/register', this.formData)
-      if (success) this.$router.push('/')
+      if (success) {
+        this.$apolloHelpers.onLogin(getToken())
+        this.$store.dispatch('listeners/callSubListeners')
+        this.$router.push('/')
+      }
     },
   },
 }

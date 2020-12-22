@@ -6,10 +6,14 @@ import {
 } from '../GraphQl/Queries'
 import { register } from '~/GraphQl/Mutations'
 
-export const state = () => ({
-  user: null,
-  loading: false,
-})
+const getDefaultState = () => {
+  return {
+    user: null,
+    loading: false,
+  }
+}
+
+export const state = getDefaultState()
 
 export const actions = {
   async loginWithToken(context) {
@@ -70,7 +74,7 @@ export const actions = {
       context.commit('setLoading', true)
       const res = await logOut(this.app.apolloProvider.defaultClient)
       if (res.data?.logout) {
-        context.commit('loggedOut')
+        context.dispatch('resetStore', {}, { root: true })
         return true
       }
     } catch (error) {
@@ -90,8 +94,7 @@ export const mutations = {
   },
   loggedOut(state) {
     jwtService.destroyToken()
-    state.user = null
-    state.loading = false
+    Object.assign(state, getDefaultState())
   },
   pushFriendRequest(state, friendRequest) {
     state.user.friendRequests.push(friendRequest)

@@ -22,6 +22,7 @@
 import AppFooter from '../components/AppFooter.vue'
 import NavBar from '../components/NavBar.vue'
 import { getToken } from '../common/jwt.service'
+import { FRIEND_REQUEST_SUPSRIBTION } from '../GraphQl/Subscriptions'
 export default {
   components: { NavBar, AppFooter },
   data() {
@@ -55,12 +56,32 @@ export default {
       return this.$store.state.auth.user
     },
   },
+  apollo: {
+    $subscribe: {
+      OnFriendRequestRecieved: {
+        query: FRIEND_REQUEST_SUPSRIBTION,
+        result(data) {
+          const newFriendRequest = data.data.friendRequestRecieved
+          this.$store.dispatch(
+            'users/friendRequestRecieved',
+            newFriendRequest.from
+          )
+        },
+      },
+    },
+  },
   async created() {
     let success
+    this.$store.commit('listeners/addSubListener', this.refreshSub)
     if (getToken() && !this.$store.state.auth.user) {
       success = await this.$store.dispatch('auth/loginWithToken')
     }
     if (success) this.$router.push('/chat')
+  },
+  methods: {
+    refreshSub() {
+      this.$apollo.subscriptions.OnFriendRequestRecieved.refresh()
+    },
   },
 }
 </script>

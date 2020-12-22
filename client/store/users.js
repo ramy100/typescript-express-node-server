@@ -1,8 +1,12 @@
 import { sendFriendRequest } from '~/GraphQl/Mutations'
 
-export const state = {
-  nonFriends: [],
+const getDefaultState = () => {
+  return {
+    nonFriends: [],
+  }
 }
+
+export const state = getDefaultState()
 
 export const actions = {
   async sendFriendRequest(context, userId) {
@@ -33,5 +37,8 @@ export const mutations = {
   removeFromNonFriendsList(state, userId) {
     const newList = state.nonFriends.filter((user) => user.id !== userId)
     state.nonFriends = newList
+  },
+  clearUsersList(state) {
+    Object.assign(state, getDefaultState())
   },
 }

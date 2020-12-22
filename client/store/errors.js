@@ -1,12 +1,16 @@
-export const state = () => ({
-  formErrors: {},
-})
+const getDefaultState = () => {
+  return {
+    formErrors: {},
+  }
+}
+
+export const state = getDefaultState()
 
 export const mutations = {
   setErrors(state, payload) {
     state.formErrors = payload
   },
   clearErrors(state) {
-    state.formErrors = {}
+    Object.assign(state, getDefaultState())
   },
 }

@@ -18,8 +18,22 @@ export const REGISTER_MUTATION = gql`
       data {
         token
         user {
+          id
           username
           email
+          avatar
+          friendRequests {
+            id
+            email
+            username
+            avatar
+          }
+          friends {
+            id
+            email
+            username
+            avatar
+          }
         }
       }
     }
