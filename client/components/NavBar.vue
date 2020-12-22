@@ -68,10 +68,6 @@
           {{ item.title }}
           <v-icon right>{{ item.icon }}</v-icon>
         </v-btn>
-        <v-btn v-if="user" text @click="showUsers = !showUsers">
-          find friends
-          <v-icon right>mdi-account-group</v-icon>
-        </v-btn>
         <v-btn v-if="user" text @click="logOut">
           Log Out
           <v-icon right>mdi-exit-to-app</v-icon>

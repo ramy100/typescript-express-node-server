@@ -93,4 +93,7 @@ export const mutations = {
     state.user = null
     state.loading = false
   },
+  pushFriendRequest(state, friendRequest) {
+    state.user.friendRequests.push(friendRequest)
+  },
 }

@@ -1,3 +1,3 @@
-import { register } from './Calls'
+import { register, sendFriendRequest } from './Calls'
 
-export { register }
+export { register, sendFriendRequest }

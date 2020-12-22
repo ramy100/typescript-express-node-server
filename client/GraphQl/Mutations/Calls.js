@@ -1,4 +1,5 @@
-import { REGISTER_MUTATION } from './Mutations'
+import { REGISTER_MUTATION, SEND_FRIEND_REQUEST_MUTATION } from './Mutations'
+
 export const register = async (apollo, formData) => {
   return await apollo.mutate({
     mutation: REGISTER_MUTATION,
@@ -7,6 +8,15 @@ export const register = async (apollo, formData) => {
       repeat_password: formData.repeat_password,
       username: formData.username,
       password: formData.password,
+    },
+  })
+}
+
+export const sendFriendRequest = async (apollo, friendId) => {
+  return await apollo.mutate({
+    mutation: SEND_FRIEND_REQUEST_MUTATION,
+    variables: {
+      friendId,
     },
   })
 }

@@ -25,3 +25,29 @@ export const REGISTER_MUTATION = gql`
     }
   }
 `
+
+export const SEND_FRIEND_REQUEST_MUTATION = gql`
+  mutation sendFriendRequest($friendId: String) {
+    sendFriendRequest(friendId: $friendId) {
+      message
+      code
+      success
+    }
+  }
+`
+
+export const ACCEPT_FRIEND_REQUEST_MUTATION = gql`
+  mutation acceptFriendRequest($friendId: String) {
+    acceptFriendRequest(friendId: $friendId) {
+      message
+      code
+      success
+      data {
+        id
+        email
+        username
+        avatar
+      }
+    }
+  }
+`
