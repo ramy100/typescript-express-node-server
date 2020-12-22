@@ -1,8 +1,5 @@
 <template>
   <div>
-    <v-overlay :value="loading">
-      <v-progress-circular indeterminate size="64"></v-progress-circular>
-    </v-overlay>
     <v-container fluid class="pb-15">
       <v-row justify="center" class="text-center py-15">
         <h1>Logo Here</h1>

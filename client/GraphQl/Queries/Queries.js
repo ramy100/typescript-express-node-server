@@ -58,3 +58,14 @@ export const LOGOUT_USER_QUERY = gql`
     logout
   }
 `
+
+export const GET_USERS_QUERY = gql`
+  query GetUsers($pageNum: Int!) {
+    users(pageNum: $pageNum) {
+      username
+      id
+      avatar
+      email
+    }
+  }
+`

@@ -35,13 +35,13 @@
 
 <script>
 import SingForm from '../components/SingForm.vue'
-import { loginWithEmailAndPasswordGql } from '../GraphQl/Queries'
 const initialFormData = {
   email: '',
   password: '',
 }
 export default {
   name: 'SignIn',
+  middleware: 'guest',
   components: { SingForm },
   data() {
     return {
@@ -53,31 +53,26 @@ export default {
         { icon: 'mdi-linkedin', color: '#3f729b ' },
       ],
       formData: { ...initialFormData },
-      errors: {},
-      loading: false,
     }
   },
-  created() {
-    console.log(this.$store.state.auth.isAuthenticated)
+  computed: {
+    errors() {
+      return this.$store.state.errors.formErrors
+    },
+    loading() {
+      return this.$store.state.auth.loading
+    },
+  },
+  destroyed() {
+    this.$store.commit('errors/clearErrors')
   },
   methods: {
     async login() {
-      this.loading = true
-      try {
-        const res = await loginWithEmailAndPasswordGql(
-          this.$apollo,
-          this.formData
-        )
-        const data = res.data?.login?.data
-        this.loading = false
-        this.formData = { ...initialFormData }
-        this.errors = {}
-        this.$store.commit('auth/login', { user: data.user, token: data.token })
-      } catch (error) {
-        const gqlError = error.graphQLErrors[0]?.message
-        if (gqlError) this.errors = JSON.parse(gqlError)
-        this.loading = false
-      }
+      const success = await this.$store.dispatch(
+        'auth/loginWithUsernameAndPassword',
+        this.formData
+      )
+      if (success) this.$router.push('/')
     },
   },
 }

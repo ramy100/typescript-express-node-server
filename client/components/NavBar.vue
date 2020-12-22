@@ -68,6 +68,10 @@
           {{ item.title }}
           <v-icon right>{{ item.icon }}</v-icon>
         </v-btn>
+        <v-btn v-if="user" text @click="showUsers = !showUsers">
+          find friends
+          <v-icon right>mdi-account-group</v-icon>
+        </v-btn>
         <v-btn v-if="user" text @click="logOut">
           Log Out
           <v-icon right>mdi-exit-to-app</v-icon>
@@ -79,7 +83,9 @@
 
 <script>
 const rightAuthLinks = []
-const leftAuthLinks = []
+const leftAuthLinks = [
+  { title: 'Chat', path: '/chat', icon: 'mdi-facebook-messenger' },
+]
 const guestRightLinks = [
   { title: 'Sign Up', path: '/signup', icon: 'mdi-face' },
   { title: 'Sign In', path: '/signin', icon: 'mdi-lock' },
@@ -90,6 +96,7 @@ export default {
     return {
       appTitle: 'Awesome App',
       sidebar: false,
+      showUsers: false,
     }
   },
   computed: {
@@ -106,8 +113,9 @@ export default {
     },
   },
   methods: {
-    logOut() {
-      this.$store.dispatch('auth/logOut', { apollo: this.$apollo })
+    async logOut() {
+      const success = await this.$store.dispatch('auth/logOut')
+      if (success) this.$router.push('/signin')
     },
   },
 }

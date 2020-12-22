@@ -53,7 +53,6 @@
 
 <script>
 import SingForm from '../components/SingForm.vue'
-import { register } from '../GraphQl/Mutations'
 const initialFormData = {
   email: '',
   password: '',
@@ -63,6 +62,7 @@ const initialFormData = {
 }
 export default {
   name: 'SignUp',
+  middleware: 'guest',
   components: { SingForm },
   data() {
     return {
@@ -74,25 +74,23 @@ export default {
         { icon: 'mdi-linkedin', color: '#3f729b ' },
       ],
       formData: { ...initialFormData },
-      errors: {},
-      loading: false,
     }
+  },
+  computed: {
+    errors() {
+      return this.$store.state.errors.formErrors
+    },
+    loading() {
+      return this.$store.state.auth.loading
+    },
+  },
+  destroyed() {
+    this.$store.commit('errors/clearErrors')
   },
   methods: {
     async register() {
-      this.loading = true
-      try {
-        const res = await register(this.$apollo, this.formData)
-        const data = res.data?.register?.data
-        this.loading = false
-        this.formData = { ...initialFormData }
-        this.errors = {}
-        this.$store.commit('auth/login', { user: data.user, token: data.token })
-      } catch (error) {
-        const gqlError = error.graphQLErrors[0]?.message
-        if (gqlError) this.errors = JSON.parse(gqlError)
-        this.loading = false
-      }
+      const success = await this.$store.dispatch('auth/register', this.formData)
+      if (success) this.$router.push('/')
     },
   },
 }

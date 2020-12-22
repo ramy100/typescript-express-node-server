@@ -55,9 +55,12 @@ export default {
       return this.$store.state.auth.user
     },
   },
-  created() {
-    if (getToken())
-      this.$store.dispatch('auth/loginWithToken', { apollo: this.$apollo })
+  async created() {
+    let success
+    if (getToken() && !this.$store.state.auth.user) {
+      success = await this.$store.dispatch('auth/loginWithToken')
+    }
+    if (success) this.$router.push('/chat')
   },
 }
 </script>

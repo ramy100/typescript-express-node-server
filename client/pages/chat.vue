@@ -1,10 +1,11 @@
 <template>
-  <h1>Index</h1>
+  <h1>Chat Page</h1>
 </template>
 
 <script>
 export default {
-  components: {},
   middleware: 'auth',
 }
 </script>
+
+<style></style>

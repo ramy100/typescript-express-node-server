@@ -2,6 +2,7 @@ import {
   LOGIN_QUERY,
   LOGIN_FROM_TOKEN_QUERY,
   LOGOUT_USER_QUERY,
+  GET_USERS_QUERY,
 } from './Queries'
 
 export async function loginWithEmailAndPasswordGql(apollo, formData) {
@@ -23,5 +24,14 @@ export async function loginWithTokenGql(apollo) {
 export async function logOut(apollo) {
   return await apollo.query({
     query: LOGOUT_USER_QUERY,
+  })
+}
+
+export async function findFriends(apollo, pageNum) {
+  return await apollo.query({
+    query: GET_USERS_QUERY,
+    variables: {
+      pageNum,
+    },
   })
 }
