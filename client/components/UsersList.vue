@@ -51,7 +51,7 @@
           <v-btn color="blue darken-1" text @click="dialog = false">
             Close
           </v-btn>
-          <v-btn color="blue darken-1" text @click="save"> Save </v-btn>
+          <!-- <v-btn color="blue darken-1" text @click="save"> Save </v-btn> -->
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -61,37 +61,49 @@
 <script>
 import { GET_USERS_QUERY } from '../GraphQl/Queries/Queries'
 import UserCard from './UserCard.vue'
+import { usersMutations } from '../store/users/mutations.types'
+import { usersActions } from '../store/users/actions.types'
 export default {
   name: 'UsersList',
   components: { UserCard },
   data() {
     return {
       dialog: false,
-      pageNum: 0,
-      hasMore: true,
     }
   },
   computed: {
     users() {
-      return this.$store.state.users.nonFriends
+      return this.$store.state.users.nonFriends || []
     },
     friendRequests() {
-      return this.$store.state.auth.user.friendRequests
+      return this.$store.state.auth.user.friendRequests || []
+    },
+    pageNum() {
+      return this.$store.state.users.pageNum
+    },
+    hasMore() {
+      return this.$store.state.users.hasMore
     },
   },
   methods: {
     async addFriend(user) {
-      const res = await this.$store.dispatch('users/sendFriendRequest', user.id)
+      const res = await this.$store.dispatch(
+        `users/${usersActions.SEND_FRIEND_REQUEST}`,
+        user.id
+      )
       console.log(res)
     },
     async acceptFriendRequest(user) {
-      const res = await this.$store.dispatch('users/acceptFriendRequest', user)
+      const res = await this.$store.dispatch(
+        `users/${usersActions.ACCEPT_FRIEND_REQUEST}`,
+        user
+      )
       console.log(res)
     },
     onIntersect(_entries, _observer, isIntersecting) {
       if (isIntersecting && this.hasMore) {
-        this.pageNum++
-        this.$apollo.queries.users.refetch()
+        this.$store.commit(`users/${usersMutations.INCREASE_PAGENUM}`)
+        this.$apollo.queries.users.start()
       }
     },
   },
@@ -103,16 +115,20 @@ export default {
           pageNum: this.pageNum,
         }
       },
+      skip: true,
       result({ data }) {
-        if (data.users.length) {
+        if (data?.users?.length) {
           const filteredList = data.users.filter((user) => {
             return !this.$store.state.auth.user.friendRequests.some(
               (request) => request.id === user.id
             )
           })
-          this.$store.commit('users/pushToUsers', filteredList)
+          this.$store.commit(
+            `users/${usersMutations.PUSH_TO_USERS}`,
+            filteredList
+          )
         } else {
-          this.hasMore = false
+          this.$store.commit(`users/${usersMutations.SET_HAS_MORE}`, false)
         }
       },
     },

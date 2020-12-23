@@ -30,6 +30,7 @@
 <script>
 import UsersList from '../components/UsersList.vue'
 export default {
+  name: 'Chat',
   components: { UsersList },
   middleware: 'auth',
   data() {

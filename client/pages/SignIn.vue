@@ -36,6 +36,10 @@
 <script>
 import { getToken } from '../common/jwt.service'
 import SingForm from '../components/SingForm.vue'
+import { authActions } from '../store/auth/actions.types'
+import { errorsMutations } from '../store/errors/mutations.types'
+import { listenersActions } from '../store/listeners/actions.types'
+
 const initialFormData = {
   email: '',
   password: '',
@@ -65,17 +69,17 @@ export default {
     },
   },
   destroyed() {
-    this.$store.commit('errors/clearErrors')
+    this.$store.commit(`errors/${errorsMutations.CLEAR_ERRORS}`)
   },
   methods: {
     async login() {
       const success = await this.$store.dispatch(
-        'auth/loginWithUsernameAndPassword',
+        `auth/${authActions.LOGIN_WITH_EMAIL}`,
         this.formData
       )
       if (success) {
         this.$apolloHelpers.onLogin(getToken())
-        this.$store.dispatch('listeners/callSubListeners')
+        this.$store.dispatch(`listeners/${listenersActions.CALL_SUB_LISTENERS}`)
         this.$router.push('/')
       }
     },

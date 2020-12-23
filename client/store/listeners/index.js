@@ -1,3 +1,6 @@
+import { listenersActions } from './actions.types'
+import { listenersMutations } from './mutations.types'
+
 const getDefaultState = () => {
   return {
     Sublist: [],
@@ -7,7 +10,7 @@ const getDefaultState = () => {
 export const state = getDefaultState()
 
 export const actions = {
-  callSubListeners(context) {
+  [listenersActions.CALL_SUB_LISTENERS](context) {
     context.state.Sublist.forEach((listener) => {
       listener()
     })
@@ -15,7 +18,7 @@ export const actions = {
 }
 
 export const mutations = {
-  addSubListener(state, payload) {
+  [listenersMutations.ADD_SUB_LISTENERS](state, payload) {
     state.Sublist.push(payload)
   },
 }

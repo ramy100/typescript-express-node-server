@@ -1,3 +1,4 @@
+import { errorsMutations } from './mutations.types'
 const getDefaultState = () => {
   return {
     formErrors: {},
@@ -7,10 +8,10 @@ const getDefaultState = () => {
 export const state = getDefaultState()
 
 export const mutations = {
-  setErrors(state, payload) {
+  [errorsMutations.SET_ERROR](state, payload) {
     state.formErrors = payload
   },
-  clearErrors(state) {
+  [errorsMutations.CLEAR_ERRORS](state) {
     Object.assign(state, getDefaultState())
   },
 }

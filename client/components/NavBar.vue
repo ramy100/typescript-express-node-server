@@ -78,6 +78,8 @@
 </template>
 
 <script>
+import { authActions } from '~/store/auth/actions.types'
+import { listenersActions } from '../store/listeners/actions.types'
 const rightAuthLinks = []
 const leftAuthLinks = [
   { title: 'Chat', path: '/chat', icon: 'mdi-facebook-messenger' },
@@ -86,7 +88,9 @@ const guestRightLinks = [
   { title: 'Sign Up', path: '/signup', icon: 'mdi-face' },
   { title: 'Sign In', path: '/signin', icon: 'mdi-lock' },
 ]
-const guestLeftLinks = [{ title: 'Home', path: '/home', icon: 'mdi-home' }]
+const guestLeftLinks = [
+  { title: 'Inspire', path: '/inspire', icon: 'mdi-home' },
+]
 export default {
   data() {
     return {
@@ -111,11 +115,13 @@ export default {
   methods: {
     async logOut() {
       try {
-        const success = await this.$store.dispatch('auth/logOut')
+        const success = await this.$store.dispatch(`auth/${authActions.LOGOUT}`)
         if (success) {
           this.$apolloHelpers.onLogout()
           this.$router.push('/signin')
-          this.$store.dispatch('listeners/callSubListeners')
+          this.$store.dispatch(
+            `listeners/${listenersActions.CALL_SUB_LISTENERS}`
+          )
         }
       } catch (error) {
         console.log('error logout')

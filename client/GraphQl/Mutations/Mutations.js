@@ -1,5 +1,5 @@
 import gql from 'graphql-tag'
-export const REGISTER_MUTATION = gql`
+export const REGISTER = gql`
   mutation REGISTERUSER(
     $username: String
     $email: String
@@ -40,7 +40,7 @@ export const REGISTER_MUTATION = gql`
   }
 `
 
-export const SEND_FRIEND_REQUEST_MUTATION = gql`
+export const SEND_FRIEND_REQUEST = gql`
   mutation sendFriendRequest($friendId: String) {
     sendFriendRequest(friendId: $friendId) {
       message
@@ -50,7 +50,7 @@ export const SEND_FRIEND_REQUEST_MUTATION = gql`
   }
 `
 
-export const ACCEPT_FRIEND_REQUEST_MUTATION = gql`
+export const ACCEPT_FRIEND_REQUEST = gql`
   mutation acceptFriendRequest($friendId: String) {
     acceptFriendRequest(friendId: $friendId) {
       message

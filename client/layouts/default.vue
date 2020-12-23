@@ -10,7 +10,7 @@
     <v-main>
       <v-container>
         <transition name="fade">
-          <nuxt keep-alive :keep-alive-props="{ exclude: ['UsersList'] }" />
+          <nuxt />
         </transition>
       </v-container>
     </v-main>
@@ -23,6 +23,10 @@ import AppFooter from '../components/AppFooter.vue'
 import NavBar from '../components/NavBar.vue'
 import { getToken } from '../common/jwt.service'
 import { FRIEND_REQUEST_SUPSRIBTION } from '../GraphQl/Subscriptions'
+import { authActions } from '~/store/auth/actions.types'
+import { usersActions } from '../store/users/actions.types'
+import { listenersMutations } from '../store/listeners/mutations.types'
+
 export default {
   components: { NavBar, AppFooter },
   data() {
@@ -63,7 +67,7 @@ export default {
         result(data) {
           const newFriendRequest = data.data.friendRequestRecieved
           this.$store.dispatch(
-            'users/friendRequestRecieved',
+            `users/${usersActions.FRIEND_REQUEST_RECIEVED}`,
             newFriendRequest.from
           )
         },
@@ -72,9 +76,14 @@ export default {
   },
   async created() {
     let success
-    this.$store.commit('listeners/addSubListener', this.refreshSub)
+    this.$store.commit(
+      `listeners/${listenersMutations.ADD_SUB_LISTENERS}`,
+      this.refreshSub
+    )
     if (getToken() && !this.$store.state.auth.user) {
-      success = await this.$store.dispatch('auth/loginWithToken')
+      success = await this.$store.dispatch(
+        `auth/${authActions.LOGIN_WITH_TOKEN}`
+      )
     }
     if (success) this.$router.push('/chat')
   },
