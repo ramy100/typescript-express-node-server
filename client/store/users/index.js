@@ -46,10 +46,19 @@ export const actions = {
     }
   },
   [usersActions.FRIEND_REQUEST_RECIEVED](context, friendRequest) {
-    context.commit(`${usersMutations.REMOVE_FROM_USERS}`, friendRequest.id)
+    // context.commit(`${usersMutations.REMOVE_FROM_USERS}`, friendRequest.id)
     context.commit(`auth/${authMutations.PUSH_FRIEND_REQUEST}`, friendRequest, {
       root: true,
     })
+  },
+}
+
+export const getters = {
+  filteredUsers: (state) => (friendRequests) => {
+    const filteredList = state.nonFriends.filter((user) => {
+      return !friendRequests.some((request) => request.id === user.id)
+    })
+    return filteredList
   },
 }
 

@@ -60,9 +60,9 @@
 
 <script>
 import { GET_USERS_QUERY } from '../GraphQl/Queries/Queries'
-import UserCard from './UserCard.vue'
 import { usersMutations } from '../store/users/mutations.types'
 import { usersActions } from '../store/users/actions.types'
+import UserCard from './UserCard.vue'
 export default {
   name: 'UsersList',
   components: { UserCard },
@@ -73,7 +73,8 @@ export default {
   },
   computed: {
     users() {
-      return this.$store.state.users.nonFriends || []
+      // show only users who ddnt send friend requests
+      return this.$store.getters['users/filteredUsers'](this.friendRequests)
     },
     friendRequests() {
       return this.$store.state.auth.user.friendRequests || []
@@ -118,14 +119,9 @@ export default {
       skip: true,
       result({ data }) {
         if (data?.users?.length) {
-          const filteredList = data.users.filter((user) => {
-            return !this.$store.state.auth.user.friendRequests.some(
-              (request) => request.id === user.id
-            )
-          })
           this.$store.commit(
             `users/${usersMutations.PUSH_TO_USERS}`,
-            filteredList
+            data.users
           )
         } else {
           this.$store.commit(`users/${usersMutations.SET_HAS_MORE}`, false)

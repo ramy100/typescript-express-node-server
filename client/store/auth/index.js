@@ -5,6 +5,7 @@ import {
   logOut,
 } from '../../GraphQl/Queries'
 import { errorsMutations } from '../errors/mutations.types'
+import { usersMutations } from '../users/mutations.types'
 import { authMutations } from './mutations.types'
 import { authActions } from './actions.types'
 import { register } from '~/GraphQl/Mutations'
@@ -104,6 +105,9 @@ export const actions = {
   },
   [authActions.ADD_FRIEND](context, user) {
     context.commit(`${authMutations.REMOVE_FRIEND_REQUEST}`, user.id)
+    context.commit(`users/${usersMutations.REMOVE_FROM_USERS}`, user.id, {
+      root: true,
+    })
     context.commit(`${authMutations.ADD_FRIEND}`, user)
   },
 }
