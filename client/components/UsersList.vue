@@ -18,88 +18,23 @@
       </template>
       <v-card>
         <v-card-title>People you may know</v-card-title>
-
         <v-divider></v-divider>
         <v-card-text style="height: 300px">
-          <v-card v-for="user in friendRequests" :key="user.id" class="mt-10">
-            <div class="d-flex flex-no-wrap justify-space-between">
-              <div>
-                <v-card-title
-                  class="headline"
-                  v-text="user.email"
-                ></v-card-title>
-                <v-card-subtitle v-text="user.email"></v-card-subtitle>
-                <v-card-actions>
-                  <v-btn
-                    v-if="user.email === 'Ellie Goulding'"
-                    class="ml-2 mt-3"
-                    fab
-                    icon
-                    height="40px"
-                    right
-                    width="40px"
-                  >
-                    <v-icon>mdi-play</v-icon>
-                  </v-btn>
-                  <v-btn
-                    v-else
-                    class="ml-2 mt-5"
-                    outlined
-                    rounded
-                    small
-                    @click="acceptFriendRequest(user.id)"
-                  >
-                    Accept friend request
-                  </v-btn>
-                </v-card-actions>
-              </div>
-              <v-avatar class="ma-3" size="125" tile>
-                <v-img
-                  src="https://randomuser.me/api/portraits/women/84.jpg"
-                ></v-img>
-              </v-avatar>
-            </div>
-          </v-card>
+          <user-card
+            v-for="user in friendRequests"
+            :key="user.id"
+            :user="user"
+            action-name="Accept friend request"
+            :on-click="acceptFriendRequest"
+          ></user-card>
           <v-divider></v-divider>
-          <v-card v-for="user in users" :key="user.id" class="mt-10">
-            <div class="d-flex flex-no-wrap justify-space-between">
-              <div>
-                <v-card-title
-                  class="headline"
-                  v-text="user.email"
-                ></v-card-title>
-                <v-card-subtitle v-text="user.email"></v-card-subtitle>
-                <v-card-actions>
-                  <v-btn
-                    v-if="user.email === 'Ellie Goulding'"
-                    class="ml-2 mt-3"
-                    fab
-                    icon
-                    height="40px"
-                    right
-                    width="40px"
-                  >
-                    <v-icon>mdi-play</v-icon>
-                  </v-btn>
-                  <v-btn
-                    v-else
-                    class="ml-2 mt-5"
-                    outlined
-                    rounded
-                    small
-                    @click="addFriend(user.id)"
-                  >
-                    Add friend
-                  </v-btn>
-                </v-card-actions>
-              </div>
-              <v-avatar class="ma-3" size="125" tile>
-                <v-img
-                  src="https://randomuser.me/api/portraits/women/84.jpg"
-                ></v-img>
-              </v-avatar>
-            </div>
-          </v-card>
+          <user-card
+            v-for="user in users"
+            :key="user.id"
+            :user="user"
+            action-name="Add friend"
+            :on-click="addFriend"
+          ></user-card>
           <div
             v-if="hasMore"
             v-intersect="onIntersect"
@@ -125,12 +60,14 @@
 
 <script>
 import { GET_USERS_QUERY } from '../GraphQl/Queries/Queries'
-import { FRIEND_REQUEST_SUPSRIBTION } from '../GraphQl/Subscriptions'
+import UserCard from './UserCard.vue'
 export default {
+  name: 'UsersList',
+  components: { UserCard },
   data() {
     return {
       dialog: false,
-      pageNum: 1,
+      pageNum: 0,
       hasMore: true,
     }
   },
@@ -143,15 +80,13 @@ export default {
     },
   },
   methods: {
-    save() {
-      console.log(this.users)
-    },
-    async addFriend(id) {
-      const res = await this.$store.dispatch('users/sendFriendRequest', id)
+    async addFriend(user) {
+      const res = await this.$store.dispatch('users/sendFriendRequest', user.id)
       console.log(res)
     },
-    acceptFriendRequest(id) {
-      console.log(id)
+    async acceptFriendRequest(user) {
+      const res = await this.$store.dispatch('users/acceptFriendRequest', user)
+      console.log(res)
     },
     onIntersect(_entries, _observer, isIntersecting) {
       if (isIntersecting && this.hasMore) {

@@ -10,7 +10,7 @@
     <v-main>
       <v-container>
         <transition name="fade">
-          <nuxt />
+          <nuxt keep-alive :keep-alive-props="{ exclude: ['UsersList'] }" />
         </transition>
       </v-container>
     </v-main>

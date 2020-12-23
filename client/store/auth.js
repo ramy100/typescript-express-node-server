@@ -81,6 +81,10 @@ export const actions = {
       context.commit('setLoading', false)
     }
   },
+  newFriendAdded(context, user) {
+    context.commit('removeFromfriendRequests', user.id)
+    context.commit('addToFriends', user)
+  },
 }
 
 export const mutations = {
@@ -98,5 +102,13 @@ export const mutations = {
   },
   pushFriendRequest(state, friendRequest) {
     state.user.friendRequests.push(friendRequest)
+  },
+  removeFromfriendRequests(state, friendId) {
+    state.user.friendRequests = state.user.friendRequests.filter(
+      (friendRequest) => friendRequest.id !== friendId
+    )
+  },
+  addToFriends(state, friend) {
+    state.user.friends.push(friend)
   },
 }

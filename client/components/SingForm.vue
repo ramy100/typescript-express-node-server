@@ -19,7 +19,6 @@
       <v-row justify="center" class="text-center py-5">
         <span class="font-weight-light">or {{ title }} with Email</span>
       </v-row>
-
       <v-row justify="center" class="text-center">
         <v-card min-width="50%" :loading="loading">
           <div class="pt-9">

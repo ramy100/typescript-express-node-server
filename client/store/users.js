@@ -1,4 +1,4 @@
-import { sendFriendRequest } from '~/GraphQl/Mutations'
+import { sendFriendRequest, acceptFriendRequest } from '~/GraphQl/Mutations'
 
 const getDefaultState = () => {
   return {
@@ -20,6 +20,20 @@ export const actions = {
       return res.data.sendFriendRequest
     } catch (error) {
       return false
+    }
+  },
+  async acceptFriendRequest(context, user) {
+    try {
+      const res = await acceptFriendRequest(
+        this.app.apolloProvider.defaultClient,
+        user.id
+      )
+      if (res.data.acceptFriendRequest.success) {
+        context.dispatch('auth/newFriendAdded', user, { root: true })
+      }
+      return res.data.acceptFriendRequest
+    } catch (error) {
+      return error
     }
   },
   friendRequestRecieved(context, friendRequest) {
