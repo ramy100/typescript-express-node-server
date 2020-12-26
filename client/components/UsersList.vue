@@ -38,13 +38,21 @@
           <div
             v-if="hasMore"
             v-intersect="onIntersect"
-            class="text-center mt-8"
+            class="text-center loading"
           >
-            <v-progress-circular cen indeterminate size="64"
-              ><v-icon>mdi-account-convert</v-icon></v-progress-circular
-            >
+            <v-progress-circular
+              indeterminate
+              color="primary"
+            ></v-progress-circular>
           </div>
-          <h3 v-if="!hasMore" class="text-center mt-8">No more results</h3>
+          <div v-if="!hasMore" class="noResults">
+            <div>
+              <v-img src="/no-results.png" width="300"></v-img>
+            </div>
+            <div>
+              <h3 class="text-center">No results</h3>
+            </div>
+          </div>
         </v-card-text>
         <v-divider></v-divider>
         <v-card-actions>
@@ -60,8 +68,8 @@
 
 <script>
 import { GET_USERS_QUERY } from '../GraphQl/Queries/Queries'
-import { usersMutations } from '../store/users/mutations.types'
-import { usersActions } from '../store/users/actions.types'
+import { usersMutations } from '../storeTypes/users/mutations.types'
+import { usersActions } from '../storeTypes/users/actions.types'
 import UserCard from './UserCard.vue'
 export default {
   name: 'UsersList',
@@ -77,7 +85,7 @@ export default {
       return this.$store.getters['users/filteredUsers'](this.friendRequests)
     },
     friendRequests() {
-      return this.$store.state.auth.user.friendRequests || []
+      return this.$store.getters['auth/friendRequests']
     },
     pageNum() {
       return this.$store.state.users.pageNum
@@ -117,6 +125,7 @@ export default {
         }
       },
       skip: true,
+      manual: true,
       result({ data }) {
         if (data?.users?.length) {
           this.$store.commit(
@@ -133,9 +142,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.notification {
-  background-color: rgb(185, 62, 62);
-  width: 10px;
-  height: 10px;
+.loading {
+  margin-top: 150px;
+}
+.noResults {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
 }
 </style>

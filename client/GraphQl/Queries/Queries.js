@@ -69,3 +69,14 @@ export const GET_USERS_QUERY = gql`
     }
   }
 `
+export const READ_MESSAGES_QUERY = gql`
+  query($friendId: String!, $pageNum: Int!) {
+    readMessages(friendId: $friendId, pageNum: $pageNum) {
+      to
+      from
+      content
+      created_at
+      id
+    }
+  }
+`

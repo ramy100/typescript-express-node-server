@@ -3,6 +3,7 @@ import {
   LOGIN_FROM_TOKEN_QUERY,
   LOGOUT_USER_QUERY,
   GET_USERS_QUERY,
+  READ_MESSAGES_QUERY,
 } from './Queries'
 
 export async function loginWithEmailAndPasswordGql(apollo, formData) {
@@ -31,6 +32,16 @@ export async function findFriends(apollo, pageNum) {
   return await apollo.query({
     query: GET_USERS_QUERY,
     variables: {
+      pageNum,
+    },
+  })
+}
+
+export async function readMessages(apollo, friendId, pageNum) {
+  return await apollo.query({
+    query: READ_MESSAGES_QUERY,
+    variables: {
+      friendId,
       pageNum,
     },
   })

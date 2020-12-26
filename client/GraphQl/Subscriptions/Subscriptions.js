@@ -13,3 +13,18 @@ export const FRIEND_REQUEST_SUPSRIBTION = gql`
     }
   }
 `
+
+export const CHAT_MESSAGE_SUPSRIBTION = gql`
+  subscription {
+    chatMessages {
+      id
+      from {
+        id
+        username
+        email
+        avatar
+      }
+      content
+    }
+  }
+`

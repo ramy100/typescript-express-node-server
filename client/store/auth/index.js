@@ -1,13 +1,14 @@
+import Vue from 'vue'
 import jwtService from '@/common/jwt.service'
 import {
   loginWithEmailAndPasswordGql,
   loginWithTokenGql,
   logOut,
 } from '../../GraphQl/Queries'
-import { errorsMutations } from '../errors/mutations.types'
-import { usersMutations } from '../users/mutations.types'
-import { authMutations } from './mutations.types'
-import { authActions } from './actions.types'
+import { errorsMutations } from '../../storeTypes/errors/mutations.types'
+import { usersMutations } from '../../storeTypes/users/mutations.types'
+import { authMutations } from '../../storeTypes/auth/mutations.types'
+import { authActions } from '../../storeTypes/auth/actions.types'
 import { register } from '~/GraphQl/Mutations'
 
 const getDefaultState = () => {
@@ -25,6 +26,7 @@ export const actions = {
       context.commit(`${authMutations.SET_LOADING}`, true)
       const res = await loginWithTokenGql(this.app.apolloProvider.defaultClient)
       const user = res.data?.user
+
       context.commit(`${authMutations.LOGIN}`, { user })
       return true
     } catch (error) {
@@ -112,9 +114,34 @@ export const actions = {
   },
 }
 
+export const getters = {
+  friendRequests(state) {
+    if (state.user) return Object.values(state.user.friendRequests)
+    return []
+  },
+  friends(state) {
+    if (state.user) return Object.values(state.user.friends)
+    return []
+  },
+}
+
 export const mutations = {
   [authMutations.LOGIN](state, payload) {
     if (payload.token) jwtService.saveToken(payload.token)
+    payload.friendRequests = payload.user.friendRequests.reduce(
+      (accumulator, request) => {
+        accumulator[request.id] = request
+        return accumulator
+      },
+      {}
+    )
+    payload.user.friends = payload.user.friends.reduce(
+      (accumulator, friend) => {
+        accumulator[friend.id] = friend
+        return accumulator
+      },
+      {}
+    )
     state.user = payload.user
     state.loading = false
   },
@@ -126,14 +153,12 @@ export const mutations = {
     Object.assign(state, getDefaultState())
   },
   [authMutations.PUSH_FRIEND_REQUEST](state, friendRequest) {
-    state.user.friendRequests.push(friendRequest)
+    Vue.set(state.user.friendRequests, friendRequest.id, friendRequest)
   },
   [authMutations.REMOVE_FRIEND_REQUEST](state, friendId) {
-    state.user.friendRequests = state.user.friendRequests.filter(
-      (friendRequest) => friendRequest.id !== friendId
-    )
+    Vue.delete(state.user.friendRequests, friendId)
   },
   [authMutations.ADD_FRIEND](state, friend) {
-    state.user.friends.push(friend)
+    Vue.set(state.user.friends, friend.id, friend)
   },
 }

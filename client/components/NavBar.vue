@@ -78,11 +78,11 @@
 </template>
 
 <script>
-import { authActions } from '~/store/auth/actions.types'
-import { listenersActions } from '../store/listeners/actions.types'
+import { listenersActions } from '../storeTypes/listeners/actions.types'
+import { authActions } from '../storeTypes/auth/actions.types'
 const rightAuthLinks = []
 const leftAuthLinks = [
-  { title: 'Chat', path: '/chat', icon: 'mdi-facebook-messenger' },
+  { title: 'Messanger', path: '/messanger', icon: 'mdi-facebook-messenger' },
 ]
 const guestRightLinks = [
   { title: 'Sign Up', path: '/signup', icon: 'mdi-face' },

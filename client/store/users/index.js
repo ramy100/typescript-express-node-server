@@ -1,12 +1,12 @@
-import { authMutations } from '../auth/mutations.types'
-import { usersMutations } from './mutations.types'
-import { usersActions } from './actions.types'
+import Vue from 'vue'
+import { authMutations } from '../../storeTypes/auth/mutations.types'
+import { usersMutations } from '../../storeTypes/users/mutations.types'
+import { usersActions } from '../../storeTypes/users/actions.types'
 import { sendFriendRequest, acceptFriendRequest } from '~/GraphQl/Mutations'
-import { authActions } from '~/store/auth/actions.types'
-
+import { authActions } from '~/storeTypes/auth/actions.types'
 const getDefaultState = () => {
   return {
-    nonFriends: [],
+    nonFriends: {},
     hasMore: true,
     pageNum: 0,
   }
@@ -46,7 +46,6 @@ export const actions = {
     }
   },
   [usersActions.FRIEND_REQUEST_RECIEVED](context, friendRequest) {
-    // context.commit(`${usersMutations.REMOVE_FROM_USERS}`, friendRequest.id)
     context.commit(`auth/${authMutations.PUSH_FRIEND_REQUEST}`, friendRequest, {
       root: true,
     })
@@ -55,20 +54,22 @@ export const actions = {
 
 export const getters = {
   filteredUsers: (state) => (friendRequests) => {
-    const filteredList = state.nonFriends.filter((user) => {
-      return !friendRequests.some((request) => request.id === user.id)
+    const filteredObj = { ...state.nonFriends }
+    friendRequests.forEach((request) => {
+      delete filteredObj[request.id]
     })
-    return filteredList
+    return Object.values(filteredObj)
   },
 }
 
 export const mutations = {
-  [usersMutations.PUSH_TO_USERS](state, payload) {
-    state.nonFriends = [...state.nonFriends, ...payload]
+  [usersMutations.PUSH_TO_USERS](state, newFetchedUsers) {
+    newFetchedUsers.forEach((user) => {
+      Vue.set(state.nonFriends, user.id, user)
+    })
   },
   [usersMutations.REMOVE_FROM_USERS](state, userId) {
-    const newList = state.nonFriends.filter((user) => user.id !== userId)
-    state.nonFriends = newList
+    Vue.delete(state.nonFriends, userId)
   },
   [usersMutations.SET_HAS_MORE](state, payload) {
     state.hasMore = payload

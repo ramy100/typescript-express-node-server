@@ -1,5 +1,5 @@
 <template>
-  <div class="ma-12">
+  <div>
     <v-navigation-drawer absolute right permanent expand-on-hover>
       <v-list>
         <v-list-item class="px-2">
@@ -24,14 +24,24 @@
         <users-list v-if="user"></users-list>
       </v-list>
     </v-navigation-drawer>
+    <friend-list></friend-list>
+    <v-container id="openChats">
+      <!-- <open-chat></open-chat> -->
+      <open-chat
+        v-for="chat in openChats"
+        :key="chat.friendId"
+        :chat="chat"
+      ></open-chat>
+    </v-container>
   </div>
 </template>
 
 <script>
+import FriendList from '../components/friendList.vue'
+import OpenChat from '../components/OpenChat.vue'
 import UsersList from '../components/UsersList.vue'
 export default {
-  name: 'Chat',
-  components: { UsersList },
+  components: { UsersList, FriendList, OpenChat },
   middleware: 'auth',
   data() {
     return {
@@ -42,8 +52,18 @@ export default {
     user() {
       return this.$store.state.auth.user
     },
+    openChats() {
+      return this.$store.getters['messages/openChats']
+    },
   },
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+#openChats {
+  height: 75vh;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+</style>

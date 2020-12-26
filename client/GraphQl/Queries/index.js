@@ -3,6 +3,13 @@ import {
   loginWithTokenGql,
   logOut,
   findFriends,
+  readMessages,
 } from './Calls'
 
-export { loginWithEmailAndPasswordGql, loginWithTokenGql, logOut, findFriends }
+export {
+  loginWithEmailAndPasswordGql,
+  loginWithTokenGql,
+  logOut,
+  findFriends,
+  readMessages,
+}

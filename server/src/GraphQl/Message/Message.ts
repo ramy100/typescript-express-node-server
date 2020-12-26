@@ -3,10 +3,23 @@ import { GqlResponse } from "../../Classes/GqlResponse/GqlResponse";
 import MessageModel from "../../models/Message";
 
 export const MessagesGraphQl = {
-  readMessages: (userId: string, friendId: string) => {
-    // MessageModel.find({
-    //   from: { $in: [userId, friendId], to: { $in: [userId, friendId] } },
-    // });
+  readMessages: async (userId: string, friendId: string, pageNum: number) => {
+    if (!userId || !friendId)
+      return new GqlResponse("User Not Found!", undefined, 404, false);
+    const messagePerPage = 5;
+    try {
+      const messages = await MessageModel.find({
+        from: { $in: [userId, friendId] },
+        to: { $in: [userId, friendId] },
+      })
+        .sort("-created_at")
+        .limit(messagePerPage)
+        .skip(pageNum * messagePerPage);
+      return messages;
+    } catch (error) {
+      console.log(error.message);
+      return new GqlResponse("server error!", undefined, 500, false);
+    }
   },
   sendMessage: async (
     userId: string,
@@ -35,7 +48,7 @@ export const MessagesGraphQl = {
         to: friendId,
         content,
       });
-      await newMessage.collection.save(newMessage);
+      await newMessage.save();
       const message = {
         ...newMessage.toJSON(),
         from: currentUser,

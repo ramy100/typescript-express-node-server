@@ -36,9 +36,9 @@
 <script>
 import { getToken } from '../common/jwt.service'
 import SingForm from '../components/SingForm.vue'
-import { authActions } from '../store/auth/actions.types'
-import { errorsMutations } from '../store/errors/mutations.types'
-import { listenersActions } from '../store/listeners/actions.types'
+import { authActions } from '../storeTypes/auth/actions.types'
+import { errorsMutations } from '../storeTypes/errors/mutations.types'
+import { listenersActions } from '../storeTypes/listeners/actions.types'
 
 const initialFormData = {
   email: '',

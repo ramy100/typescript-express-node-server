@@ -2,6 +2,7 @@ import {
   REGISTER,
   SEND_FRIEND_REQUEST,
   ACCEPT_FRIEND_REQUEST,
+  SEND_MESSAGE,
 } from './Mutations'
 
 export const register = async (apollo, formData) => {
@@ -30,6 +31,16 @@ export const acceptFriendRequest = async (apollo, friendId) => {
     mutation: ACCEPT_FRIEND_REQUEST,
     variables: {
       friendId,
+    },
+  })
+}
+
+export const sendMessage = async (apollo, { friendId, content }) => {
+  return await apollo.mutate({
+    mutation: SEND_MESSAGE,
+    variables: {
+      friendId,
+      content,
     },
   })
 }

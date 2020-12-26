@@ -1,6 +1,7 @@
-import { authMutations } from './auth/mutations.types'
-import { usersMutations } from './users/mutations.types'
-import { errorsMutations } from '~/store/errors/mutations.types'
+import { authMutations } from '../storeTypes/auth/mutations.types'
+import { usersMutations } from '../storeTypes/users/mutations.types'
+import { errorsMutations } from '~/storeTypes/errors/mutations.types'
+import { messagesMutations } from '~/storeTypes/messages/mutations.types'
 export const state = () => ({})
 
 export const actions = {
@@ -8,5 +9,6 @@ export const actions = {
     context.commit(`auth/${authMutations.LOGGED_OUT}`)
     context.commit(`users/${usersMutations.RESET_USERS}`)
     context.commit(`errors/${errorsMutations.CLEAR_ERRORS}`)
+    context.commit(`messages/${messagesMutations.RESET_NEW_MESSAGE}`)
   },
 }

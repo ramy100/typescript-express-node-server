@@ -9,6 +9,7 @@ export const messageTypeDefs = gql`
     created_at: DateTime!
   }
   type chatMessages {
+    id: ID!
     to: String!
     from: String!
     content: String!
@@ -23,6 +24,7 @@ export const messageTypeDefs = gql`
 
   extend type Query {
     messages: [Message]
+    readMessages(friendId: String, pageNum: Int): [chatMessages]
   }
   extend type Mutation {
     sendMessage(friendId: String, content: String): MessageResponse

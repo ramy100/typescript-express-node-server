@@ -8,6 +8,9 @@ const Query = {
     console.log(soso);
     return soso;
   },
+  readMessages: async (_: any, { friendId, pageNum }: any, { userId }: any) => {
+    return await MessagesGraphQl.readMessages(userId, friendId, pageNum);
+  },
 };
 
 const Mutation = {
@@ -21,7 +24,6 @@ export const Subscription = {
     subscribe: withFilter(
       (_, __, { pubsub }) => pubsub.asyncIterator("NEW_CHAT_MESSAGE"),
       (payload, variables, context) => {
-        console.log(payload);
         return payload.chatMessages.to.id == context.userId;
       }
     ),

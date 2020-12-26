@@ -50,6 +50,14 @@ export const SEND_FRIEND_REQUEST = gql`
   }
 `
 
+export const SEND_MESSAGE = gql`
+  mutation sendMessage($friendId: String, $content: String) {
+    sendMessage(friendId: $friendId, content: $content) {
+      success
+    }
+  }
+`
+
 export const ACCEPT_FRIEND_REQUEST = gql`
   mutation acceptFriendRequest($friendId: String) {
     acceptFriendRequest(friendId: $friendId) {

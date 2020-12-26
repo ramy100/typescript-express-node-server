@@ -1,4 +1,4 @@
-import { errorsMutations } from './mutations.types'
+import { errorsMutations } from '../../storeTypes/errors/mutations.types'
 const getDefaultState = () => {
   return {
     formErrors: {},

@@ -8,7 +8,7 @@
     </v-overlay>
     <nav-bar />
     <v-main>
-      <v-container>
+      <v-container fluid>
         <transition name="fade">
           <nuxt />
         </transition>
@@ -22,10 +22,15 @@
 import AppFooter from '../components/AppFooter.vue'
 import NavBar from '../components/NavBar.vue'
 import { getToken } from '../common/jwt.service'
-import { FRIEND_REQUEST_SUPSRIBTION } from '../GraphQl/Subscriptions'
-import { authActions } from '~/store/auth/actions.types'
-import { usersActions } from '../store/users/actions.types'
-import { listenersMutations } from '../store/listeners/mutations.types'
+import {
+  CHAT_MESSAGE_SUPSRIBTION,
+  FRIEND_REQUEST_SUPSRIBTION,
+} from '../GraphQl/Subscriptions'
+import { authActions } from '../storeTypes/auth/actions.types'
+import { usersActions } from '../storeTypes/users/actions.types'
+import { listenersMutations } from '../storeTypes/listeners/mutations.types'
+import { messagesActions } from '../storeTypes/messages/actions.types'
+import { listenersActions } from '../storeTypes/listeners/actions.types'
 
 export default {
   components: { NavBar, AppFooter },
@@ -61,6 +66,20 @@ export default {
     },
   },
   apollo: {
+    // user: {
+    //   query: LOGIN_FROM_TOKEN_QUERY,
+    //   manual: true,
+    //   result(res) {
+    //     console.log(res)
+    //     const user = res.data?.user
+    //     this.$store.commit(`auth/${authMutations.LOGIN}`, { user })
+    //     this.$store.commit(`auth/${authMutations.SET_LOADING}`, false)
+    //   },
+    //   error(err) {
+    //     console.log(err)
+    //     this.$store.commit(`auth/${authMutations.SET_LOADING}`, false)
+    //   },
+    // },
     $subscribe: {
       OnFriendRequestRecieved: {
         query: FRIEND_REQUEST_SUPSRIBTION,
@@ -69,6 +88,19 @@ export default {
           this.$store.dispatch(
             `users/${usersActions.FRIEND_REQUEST_RECIEVED}`,
             newFriendRequest.from
+          )
+        },
+      },
+      chatMessages: {
+        query: CHAT_MESSAGE_SUPSRIBTION,
+        result(data) {
+          this.$store.dispatch(
+            `messages/${messagesActions.NEW_MESSAGE_RECIEVED}`,
+            data.data.chatMessages
+          )
+          this.$store.dispatch(
+            `listeners/${listenersActions.CALL_MESSAGE_LISTENERS}`,
+            data.data.chatMessages.from.id
           )
         },
       },
@@ -85,11 +117,12 @@ export default {
         `auth/${authActions.LOGIN_WITH_TOKEN}`
       )
     }
-    if (success) this.$router.push('/chat')
+    if (success) this.$router.push('/messanger')
   },
   methods: {
     refreshSub() {
       this.$apollo.subscriptions.OnFriendRequestRecieved.refresh()
+      this.$apollo.subscriptions.chatMessages.refresh()
     },
   },
 }
