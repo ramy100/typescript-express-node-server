@@ -24,9 +24,11 @@ import NavBar from '../components/NavBar.vue'
 import { getToken } from '../common/jwt.service'
 import {
   CHAT_MESSAGE_SUPSRIBTION,
+  FRIEND_REQUEST_ACCEPTED_SUPSRIBTION,
   FRIEND_REQUEST_SUPSRIBTION,
 } from '../GraphQl/Subscriptions'
 import { authActions } from '../storeTypes/auth/actions.types'
+import { authMutations } from '../storeTypes/auth/mutations.types'
 import { usersActions } from '../storeTypes/users/actions.types'
 import { listenersMutations } from '../storeTypes/listeners/mutations.types'
 import { messagesActions } from '../storeTypes/messages/actions.types'
@@ -91,6 +93,17 @@ export default {
           )
         },
       },
+      OnFriendRequestAccepted: {
+        query: FRIEND_REQUEST_ACCEPTED_SUPSRIBTION,
+        result(data) {
+          console.log(data)
+          const newFriendRequestAccepted = data.data.friendRequestAccepted
+          this.$store.commit(
+            `auth/${authMutations.ADD_FRIEND}`,
+            newFriendRequestAccepted.from
+          )
+        },
+      },
       chatMessages: {
         query: CHAT_MESSAGE_SUPSRIBTION,
         result(data) {
@@ -122,6 +135,7 @@ export default {
   methods: {
     refreshSub() {
       this.$apollo.subscriptions.OnFriendRequestRecieved.refresh()
+      this.$apollo.subscriptions.OnFriendRequestAccepted.refresh()
       this.$apollo.subscriptions.chatMessages.refresh()
     },
   },

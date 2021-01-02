@@ -50,7 +50,7 @@
               <v-img src="/no-results.png" width="300"></v-img>
             </div>
             <div>
-              <h3 class="text-center">No results</h3>
+              <h3 class="text-center">No more results</h3>
             </div>
           </div>
         </v-card-text>
@@ -111,7 +111,6 @@ export default {
     },
     onIntersect(_entries, _observer, isIntersecting) {
       if (isIntersecting && this.hasMore) {
-        this.$store.commit(`users/${usersMutations.INCREASE_PAGENUM}`)
         this.$apollo.queries.users.start()
       }
     },
@@ -132,6 +131,7 @@ export default {
             `users/${usersMutations.PUSH_TO_USERS}`,
             data.users
           )
+          this.$store.commit(`users/${usersMutations.INCREASE_PAGENUM}`)
         } else {
           this.$store.commit(`users/${usersMutations.SET_HAS_MORE}`, false)
         }

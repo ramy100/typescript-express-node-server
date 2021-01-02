@@ -12,6 +12,7 @@ const typeDef = gql`
 const Supscription = gql`
   type Subscription {
     friendRequestRecieved: FriendRequest
+    friendRequestAccepted: FriendRequest
     chatMessages: Message!
   }
 `;

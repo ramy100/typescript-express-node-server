@@ -1,18 +1,9 @@
 // import express from "express";
-import dotenv from "dotenv";
 import Database from "./Classes/Db";
 import { ApolloServer, AuthenticationError, PubSub } from "apollo-server";
 import { resolvers, typeDefs } from "./GraphQl/root";
 import AuthorizeUser from "./Classes/Users/AuthorizeUsers";
-dotenv.config();
 import { redisGetAsync } from "./Classes/RedisClient";
-
-const mongoDbConfig = {
-  dbName: process.env.DB_NAME,
-  dbUserName: process.env.DB_USER,
-  dbUserPassword: process.env.DB_USER_PASS,
-  dbClusterName: process.env.DB_CLUSTER_NAME,
-};
 
 const pubsub = new PubSub();
 
@@ -38,7 +29,7 @@ const server = new ApolloServer({
   },
 });
 
-const db = new Database(mongoDbConfig);
+const db = new Database();
 db.ConnectToMongoDb();
 
 server.listen().then(({ url }) => {

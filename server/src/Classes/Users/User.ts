@@ -178,7 +178,10 @@ export default class User {
     try {
       await user.save();
       await friend.save();
-      return new GqlResponse("You are now friends", friend);
+      return new GqlResponse("You are now friends", {
+        from: user,
+        to: friend._id,
+      });
     } catch (error) {
       return new GqlResponse(error.message, undefined, 403, false);
     }

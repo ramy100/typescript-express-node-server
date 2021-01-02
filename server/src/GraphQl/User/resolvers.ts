@@ -32,10 +32,6 @@ const Query = {
 };
 
 const Mutation = {
-  register: async (_: any, registerUSer: UserRegisterType) => {
-    const user = new User();
-    return await user.registerUser(registerUSer);
-  },
   deleteAll: async () => {
     try {
       await UserModel.updateMany(
@@ -57,6 +53,10 @@ const Mutation = {
       return false;
     }
   },
+  register: async (_: any, registerUSer: UserRegisterType) => {
+    const user = new User();
+    return await user.registerUser(registerUSer);
+  },
   sendFriendRequest: async (
     _: any,
     { friendId }: { friendId: string },
@@ -74,10 +74,16 @@ const Mutation = {
   acceptFriendRequest: async (
     _: any,
     { friendId }: { friendId: string },
-    { userId }: { userId: string }
+    { userId, pubsub }: { userId: string; pubsub: any }
   ) => {
     const user = new User();
-    return await user.acceptFriendRequest(userId, friendId);
+    const res = await user.acceptFriendRequest(userId, friendId);
+    if (res.data) {
+      pubsub.publish("FRIEND_REQUEST_ACCEPTED", {
+        friendRequestAccepted: res.data,
+      });
+    }
+    return res;
   },
 };
 
@@ -88,10 +94,23 @@ const Subscription = {
         pubsub.asyncIterator(["FRIEND_REQUEST_RECIEVED"]),
       (
         payload: { friendRequestRecieved: { from: IUser; to: string } },
-        variables,
+        _: any,
         { userId }: { userId: string }
       ) => {
         return userId == payload.friendRequestRecieved.to;
+      }
+    ),
+  },
+  friendRequestAccepted: {
+    subscribe: withFilter(
+      (_: any, __: any, { pubsub }) =>
+        pubsub.asyncIterator(["FRIEND_REQUEST_ACCEPTED"]),
+      (
+        payload: { friendRequestAccepted: { from: IUser; to: string } },
+        _: any,
+        { userId }: { userId: string }
+      ) => {
+        return userId == payload.friendRequestAccepted.to;
       }
     ),
   },

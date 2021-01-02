@@ -70,7 +70,7 @@
                   clearable
                   label="Message"
                   type="text"
-                  @click:append-outer="sendMessage(chat.friendId)"
+                  @click:append-outer.prevent="sendMessage(chat.friendId)"
                 ></v-text-field>
               </v-col>
             </v-row>

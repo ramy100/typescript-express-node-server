@@ -14,6 +14,20 @@ export const FRIEND_REQUEST_SUPSRIBTION = gql`
   }
 `
 
+export const FRIEND_REQUEST_ACCEPTED_SUPSRIBTION = gql`
+  subscription OnFriendRequestAccepted {
+    friendRequestAccepted {
+      to
+      from {
+        id
+        username
+        email
+        avatar
+      }
+    }
+  }
+`
+
 export const CHAT_MESSAGE_SUPSRIBTION = gql`
   subscription {
     chatMessages {

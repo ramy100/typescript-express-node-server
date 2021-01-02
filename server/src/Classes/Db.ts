@@ -1,31 +1,20 @@
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+dotenv.config();
 
 export default class Database {
-  private connectionUrl: string = "";
-  constructor(
-    private connectionConfig: {
-      dbUserName: string | undefined;
-      dbUserPassword: string | undefined;
-      dbName: string | undefined;
-      dbClusterName?: string | undefined;
-    }
-  ) {}
+  constructor() {}
 
   async ConnectToMongoDb() {
-    const {
-      dbUserName,
-      dbUserPassword,
-      dbClusterName,
-      dbName,
-    } = this.connectionConfig;
-    this.connectionUrl = `mongodb+srv://${dbUserName}:${dbUserPassword}@${dbClusterName}.m1ihh.mongodb.net/${dbName}?retryWrites=true&w=majority`;
-
     try {
-      await mongoose.connect(this.connectionUrl, {
+      await mongoose.connect(process.env.DB_URI as string, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useFindAndModify: false,
         useCreateIndex: true,
+        authSource: "admin",
+        user: process.env.DB_USER,
+        pass: process.env.DB_PASS,
       });
       console.log("Connected to db");
     } catch (error) {
